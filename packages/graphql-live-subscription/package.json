@@ -1,0 +1,45 @@
+{
+  "name": "graphql-live-subscription",
+  "version": "0.0.1",
+  "main": "dist/index.js",
+  "module": "./src/index.js",
+  "author": "Rob Gilson",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "build": "babel esm --out-dir dist",
+    "prepublishOnly": "npm run build",
+    "test": "jest"
+  },
+  "babel": {
+    "presets": [
+      [
+        "env",
+        {
+          "targets": {
+            "node": "current"
+          }
+        }
+      ]
+    ]
+  },
+  "dependencies": {
+    "fast-json-patch": "^2.0.6",
+    "fast-memoize": "^2.3.2",
+    "typiql": "^0.3.0"
+  },
+  "peerDependencies": {
+    "graphql": "^0.13.2",
+    "graphql-subscriptions": "^0.5.8",
+    "graphql-type-json": "^0.2.0"
+  },
+  "devDependencies": {
+    "graphql": "^0.13.2",
+    "graphql-subscriptions": "^0.5.8",
+    "graphql-type-json": "^0.2.0",
+    "jest": "^22.4.3",
+    "babel-cli": "^6.24.1",
+    "babel-preset-env": "^1.5.1",
+    "babel-register": "^6.24.1"
+  }
+}

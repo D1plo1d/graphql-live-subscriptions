@@ -1,0 +1,56 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`GraphQLLiveData Integration publishes diffs when the subscriber calls the fn passed to subscribe() 1`] = `
+Object {
+  "houses": Object {
+    "patches": Array [
+      Object {
+        "op": "replace",
+        "path": "/0/numberOfCats",
+        "value": 200,
+      },
+    ],
+    "query": null,
+  },
+}
+`;
+
+exports[`GraphQLLiveData Integration publishes diffs when the subscriber calls the fn passed to subscribe() 2`] = `
+Object {
+  "houses": Object {
+    "patches": Array [
+      Object {
+        "op": "replace",
+        "path": "/1/address",
+        "value": "200 legit rd apt. 2",
+      },
+      Object {
+        "op": "replace",
+        "path": "/0/address",
+        "value": "123 real st apt. 1",
+      },
+    ],
+    "query": null,
+  },
+}
+`;
+
+exports[`GraphQLLiveData Integration publishes the initialQuery immediately 1`] = `
+Object {
+  "houses": Object {
+    "patches": null,
+    "query": Array [
+      Object {
+        "address": "123 real st",
+        "id": "real_street",
+        "numberOfCats": 5,
+      },
+      Object {
+        "address": "200 legit rd",
+        "id": "legit_road",
+        "numberOfCats": 0,
+      },
+    ],
+  },
+}
+`;
