@@ -1,13 +1,15 @@
-## graphql-live-subscription
+## graphql-live-subscriptions
 
-`graphql-live-subscription` provides RFC4627-compatible patches over GraphQL. Client-side code can implement live data in a few lines by using any of the available RFC4627 "JSON Patch" libraries listed here: http://jsonpatch.com/
+`graphql-live-subscriptions` provides RFC4627-compatible JSON patches over GraphQL. Client-side code can implement live data in a few lines by using any of the available RFC4627 "JSON Patch" libraries listed here: http://jsonpatch.com/
 
 **Why?** Because I wanted to have the benefits of Live Data and it was unclear if the proposed `@live` directive will ever be added to GraphQL.
 
 This library came about as a result of the conversation at https://github.com/facebook/graphql/issues/386
 
+Pull requests are very welcome.
+
 ### Installation
-`npm install graphql-live-subscription`
+`npm install graphql-live-subscriptions`
 
 ### API
 
@@ -32,7 +34,7 @@ returns an AsyncIterator that implements the sending of query's and patches.
 import {
   GraphQLLiveData,
   subscribeToLiveData,
-} from 'graphql-live-subscription'
+} from 'graphql-live-subscriptions'
 
 const schema = new GraphQLSchema({
   query: MyQueryGraphQLType,
@@ -54,8 +56,12 @@ const schema = new GraphQLSchema({
         resolve: source => source
 
         subscribe: subscribeToLiveData({
-          getSubscriptionProvider: () => store,
-          getSource: () => store.getJedis(),
+          getSubscriptionProvider: (source, args, context, resolveInfo) => {
+            return store
+          },
+          getSource: (originalSource, args, context, resolveInfo) => {
+            return store.getJedis()
+          },
           type: JediGraphQLType,
         }),
       },
