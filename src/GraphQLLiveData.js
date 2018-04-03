@@ -4,7 +4,7 @@ import {
 import memoize from 'fast-memoize'
 import tql from 'typiql'
 
-import RFC4627Patch from './rfc4627/RFC4627Patch'
+import RFC4627Patch from './RFC4627Patch'
 
 const GraphQLLiveData = (options = {}) => {
   const { name, resumption } = options

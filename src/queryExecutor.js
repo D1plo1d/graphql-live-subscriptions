@@ -86,9 +86,9 @@ const queryExecutor = ({ context, resolveInfo, type }) => {
     initialQuery: async state => previousState = await executeQuery(state),
     diff: async state => {
       const nextState = await executeQuery(state)
-      const diffValue = jsonPatchCompare(previousState, nextState)
+      const patches = jsonPatchCompare(previousState, nextState)
       previousState = nextState
-      return diffValue
+      return patches
     },
   }
 }

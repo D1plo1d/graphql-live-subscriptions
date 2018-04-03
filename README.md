@@ -80,14 +80,7 @@ subscription {
       firstName
       lastName
     }
-    patches {
-      ... on RFC4627Add { op, path, value }
-      ... on RFC4627Remove { op, path }
-      ... on RFC4627Replace { op, path, value }
-      ... on RFC4627Move { op, from, path }
-      ... on RFC4627Copy { op, from, path }
-      ... on RFC4627Test { op, path, value }
-    }
+    patches { op, path, from, value }
   }
 }
 ```

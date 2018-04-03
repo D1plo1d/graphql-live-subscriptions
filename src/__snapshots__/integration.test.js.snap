@@ -5,6 +5,7 @@ Object {
   "houses": Object {
     "patches": Array [
       Object {
+        "from": null,
         "op": "replace",
         "path": "/0/numberOfCats",
         "value": 200,
@@ -20,11 +21,13 @@ Object {
   "houses": Object {
     "patches": Array [
       Object {
+        "from": null,
         "op": "replace",
         "path": "/1/address",
         "value": "200 legit rd apt. 2",
       },
       Object {
+        "from": null,
         "op": "replace",
         "path": "/0/address",
         "value": "123 real st apt. 1",
