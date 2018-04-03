@@ -21,9 +21,14 @@ const queryExecutor = ({ context, resolveInfo, type }) => {
     .find(selection => selection.name.value === 'query')
 
   const buildArgumentString = argumentNode => {
-    const name = argumentNode.name.value
-    const value = argumentNode.value.value
-    return `${name}: ${value}`
+    const name = argumentNode.name.value;
+    const valueNode = argumentNode.value
+    if (valueNode.kind === 'Variable') {
+      const value = resolveInfo.variableValues[valueNode.name.value]
+      return `${name}: ${JSON.stringify(value)}`
+    } else {
+      return `${name}: ${valueNode.value}`
+    }
   }
 
   const buildQueryFromFieldNode = fieldNode => {

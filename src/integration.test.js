@@ -26,6 +26,11 @@ const HouseGraphQLType = new GraphQLObjectType({
       type: tql`ID!`
     },
     address: {
+      args: {
+        includePostalCode: {
+          type: tql`Boolean!`,
+        },
+      },
       type: tql`String!`
     },
     numberOfCats: {
@@ -86,11 +91,11 @@ const createTestSubscription = async () => {
   }
 
   const document = parse(`
-    subscription {
+    subscription($includePostalCode: Boolean!) {
       houses {
         query {
           id
-          address
+          address(includePostalCode: $includePostalCode)
           numberOfCats
         }
         patches { op, path, from, value }
@@ -102,6 +107,9 @@ const createTestSubscription = async () => {
     schema,
     document,
     contextValue: { store },
+    variableValues: {
+      includePostalCode: false,
+    },
   })
 
 
