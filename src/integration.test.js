@@ -141,6 +141,8 @@ describe('GraphQLLiveData Integration', () => {
     expect(subscription.errors).toEqual(undefined)
     // inital query
     await subscription.next()
+    // null change should not create a response
+    onChange()
     // first diff
     state[0].numberOfDogs = 0
     state[0].numberOfCats = 200

@@ -42,7 +42,9 @@ const subscribeToLiveData = ({
     /* send query diffs on state changes */
     const data = await getSource(...nestedFnArgs)
     const patches = await diff(data)
-    connectionPubSub.publish(eventName, { patches })
+    if (patches != null && patches.length > 0) {
+      connectionPubSub.publish(eventName, { patches })
+    }
   }
 
   setImmediate(async () => {
