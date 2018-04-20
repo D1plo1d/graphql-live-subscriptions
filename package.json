@@ -1,6 +1,6 @@
 {
   "name": "graphql-live-subscriptions",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "main": "dist/index.js",
   "module": "./src/index.js",
   "author": "Rob Gilson",
