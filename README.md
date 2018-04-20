@@ -36,6 +36,13 @@ import {
   subscribeToLiveData,
 } from 'graphql-live-subscriptions'
 
+const JediLiveDataGraphQLType = () => {
+  return GraphQLLiveData({
+    name: 'JediLiveData',
+    type: JediGraphQLType,
+  })
+}
+
 const schema = new GraphQLSchema({
   query: MyQueryGraphQLType,
 
@@ -44,10 +51,7 @@ const schema = new GraphQLSchema({
 
     fields: () => ({
       jedis: {
-        type: GraphQLLiveData({
-          name: 'JediLiveData',
-          type: JediGraphQLType,
-        }),
+        type: JediLiveDataGraphQLType(),
 
         /*
          * DO NOT omit this line. The subscription will not work without a
@@ -62,7 +66,8 @@ const schema = new GraphQLSchema({
           getSource: (originalSource, args, context, resolveInfo) => {
             return store.getJedis()
           },
-          type: JediGraphQLType,
+          type: JediLiveDataGraphQLType(),
+          fieldName: 'jedis',
         }),
       },
     }),
