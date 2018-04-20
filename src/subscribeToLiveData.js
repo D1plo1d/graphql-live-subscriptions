@@ -8,6 +8,7 @@ const subscribeToLiveData = ({
   getSubscriptionProvider,
   getSource,
   type,
+  fieldName,
 }) => async (source, args, context, resolveInfo) => {
   const connectionPubSub = new PubSub()
   const nestedFnArgs = [source, args, context, resolveInfo]
@@ -20,6 +21,7 @@ const subscribeToLiveData = ({
     context,
     resolveInfo,
     type,
+    fieldName,
   })
 
   const subscriptionProvider = await getSubscriptionProvider(...nestedFnArgs)

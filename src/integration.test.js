@@ -42,7 +42,12 @@ const HouseGraphQLType = new GraphQLObjectType({
   }),
 })
 
-const type = () => tql`[${HouseGraphQLType}!]`
+const HouseLiveData = () => {
+  return GraphQLLiveData({
+    name: 'HouseLiveData',
+    type: tql`[${HouseGraphQLType}!]`,
+  })
+}
 
 const schema = new GraphQLSchema({
   query: HouseGraphQLType,
@@ -50,10 +55,7 @@ const schema = new GraphQLSchema({
     name: 'SubscriptionRoot',
     fields: () => ({
       houses: {
-        type: GraphQLLiveData({
-          name: 'HouseLiveData',
-          type,
-        }),
+        type: HouseLiveData(),
         resolve(source) {
           return source
         },
@@ -61,7 +63,8 @@ const schema = new GraphQLSchema({
         subscribe: subscribeToLiveData({
           getSubscriptionProvider,
           getSource,
-          type,
+          fieldName: 'houses',
+          type: HouseLiveData(),
         }),
       }
     })
@@ -93,12 +96,20 @@ const createTestSubscription = async () => {
   const document = parse(`
     subscription($includePostalCode: Boolean!) {
       houses {
+        ...CatQueryFragment
         query {
-          id
+          ... on House {
+            id
+          }
           address(includePostalCode: $includePostalCode)
-          numberOfCats
         }
         patches { op, path, from, value }
+      }
+    }
+
+    fragment CatQueryFragment on HouseLiveData {
+      query {
+        numberOfCats
       }
     }
   `)
@@ -114,6 +125,10 @@ const createTestSubscription = async () => {
 
 
   if (subscription.then != null) subscription = await subscription
+
+  if (subscription.errors != null) {
+    expect(JSON.stringify(subscription.errors)).toEqual(null)
+  }
 
   return {
     subscription,
@@ -132,14 +147,12 @@ const expectSubscriptionResponse = async (subscription) => {
 describe('GraphQLLiveData Integration', () => {
   it('publishes the initialQuery immediately', async () => {
     const { subscription, onChange, state } = await createTestSubscription()
-    expect(subscription.errors).toEqual(undefined)
 
     await expectSubscriptionResponse(subscription)
   })
 
   it('publishes diffs when the subscriber calls the fn passed to subscribe()', async () => {
     const { subscription, onChange, state } = await createTestSubscription()
-    expect(subscription.errors).toEqual(undefined)
     // inital query
     await subscription.next()
     // null change should not create a response
