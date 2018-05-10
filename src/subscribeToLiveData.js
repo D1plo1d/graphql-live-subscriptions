@@ -5,48 +5,90 @@ import queryExecutor from './queryExecutor'
 const eventName = 'liveData'
 
 const subscribeToLiveData = ({
-  getSubscriptionProvider,
-  getSource,
+  eventEmitter: getEventEmitter,
+  initialState: getInitialState,
   type,
   fieldName,
-}) => async (source, args, context, resolveInfo) => {
+}) => async (
+  source,
+  args,
+  context,
+  resolveInfo,
+) => {
   const connectionPubSub = new PubSub()
-  const nestedFnArgs = [source, args, context, resolveInfo]
 
   if (type == null) {
     throw new Error('subscribeToLiveData \'type\' argument is required')
   }
 
-  const { initialQuery, diff } = queryExecutor({
+  let eventEmitter = getEventEmitter(
+    source,
+    args,
+    context,
+    resolveInfo,
+  )
+  if (eventEmitter.then != null) {
+    /* resolve promises */
+    eventEmitter = await eventEmitter
+  }
+  if (eventEmitter == null || eventEmitter.on == null) {
+    throw new Error(
+      'eventEmitter must either return a Promise or an instance of EventEmitter'
+    )
+  }
+
+  let initialState = getInitialState(
+    source,
+    args,
+    context,
+    resolveInfo,
+  )
+  if (initialState.then != null) {
+    /* resolve promises */
+    initialState = await initialState
+  }
+  if (initialState == null) {
+    throw new Error(
+      'initialState cannot return null'
+    )
+  }
+
+  const { initialQuery, createPatch, recordPatch } = queryExecutor({
     context,
     resolveInfo,
     type,
     fieldName,
   })
 
-  const subscriptionProvider = await getSubscriptionProvider(...nestedFnArgs)
-
   const publishInitialQuery = async () => {
-    const data = await getSource(...nestedFnArgs)
     /*
      * initialQuery sets the state of the query executor to diff against
      * in later events
      */
-    await initialQuery(data)
+    await initialQuery(initialState)
     /*
-     * the same data is used in the initialQuery is used to publish a `query`
+     * the source is used to generate the initial state and to publish a `query`
      * result to the client.
      */
-    connectionPubSub.publish(eventName, { query: data })
+    connectionPubSub.publish(eventName, { query: initialState })
   }
 
-  const onChange = async () => {
-    /* send query diffs on state changes */
-    const data = await getSource(...nestedFnArgs)
-    const patches = await diff(data)
-    if (patches != null && patches.length > 0) {
-      connectionPubSub.publish(eventName, { patches })
+  const publishPatch = patch => {
+    if (patch != null && patch.length > 0) {
+      connectionPubSub.publish(eventName, { patch })
     }
+  }
+
+  const onUpdate = async ({ nextState }) => {
+    /* generate and send the patch on state changes */
+    const patch = await createPatch(nextState)
+    publishPatch(patch)
+  }
+
+  const onPatch = async ({ patch }) => {
+    /* send the externally generated patch and update the state */
+    await recordPatch(patch)
+    publishPatch(patch)
   }
 
   setImmediate(async () => {
@@ -58,7 +100,8 @@ const subscribeToLiveData = ({
     /*
      * subscribe to changes once the initial query has been sent
      */
-    subscriptionProvider.subscribe(onChange)
+    eventEmitter.on('update', onUpdate)
+    eventEmitter.on('patch', onPatch)
   })
 
   return connectionPubSub.asyncIterator(eventName)

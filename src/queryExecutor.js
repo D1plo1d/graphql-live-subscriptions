@@ -1,4 +1,4 @@
-import { compare as jsonPatchCompare } from 'fast-json-patch'
+import * as jsonPatch from 'fast-json-patch'
 
 import {
   parse,
@@ -111,12 +111,20 @@ if (fieldName == null) {
   let previousState
 
   return {
-    initialQuery: async state => previousState = await executeQuery(state),
-    diff: async state => {
-      const nextState = await executeQuery(state)
-      const patches = jsonPatchCompare(previousState, nextState)
+    initialQuery: async data => {
+      previousState = await executeQuery(data)
+    },
+    createPatch: async data => {
+      const nextState = await executeQuery(data)
+      const patch = jsonPatch.compare(previousState, nextState)
       previousState = nextState
-      return patches
+      return patch
+    },
+    recordPatch: async patch => {
+      const patchResults = jsonPatch.applyPatch(
+        previousState,
+        jsonPatch.deepClone(patch)
+      )
     },
   }
 }

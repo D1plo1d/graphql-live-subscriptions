@@ -1,9 +1,41 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`GraphQLLiveData Integration publishes diffs when the subscriber calls the fn passed to subscribe() 1`] = `
+exports[`GraphQLLiveData Integration publishes a patch on 'patch' 1`] = `
 Object {
   "houses": Object {
-    "patches": Array [
+    "patch": Array [
+      Object {
+        "from": null,
+        "op": "replace",
+        "path": "/1/address",
+        "value": "42 Patch Event St.",
+      },
+    ],
+    "query": null,
+  },
+}
+`;
+
+exports[`GraphQLLiveData Integration publishes a patch on 'patch' 2`] = `
+Object {
+  "houses": Object {
+    "patch": Array [
+      Object {
+        "from": null,
+        "op": "replace",
+        "path": "/0/address",
+        "value": "123 real st apt. 1",
+      },
+    ],
+    "query": null,
+  },
+}
+`;
+
+exports[`GraphQLLiveData Integration publishes patches on 'update' 1`] = `
+Object {
+  "houses": Object {
+    "patch": Array [
       Object {
         "from": null,
         "op": "replace",
@@ -16,10 +48,10 @@ Object {
 }
 `;
 
-exports[`GraphQLLiveData Integration publishes diffs when the subscriber calls the fn passed to subscribe() 2`] = `
+exports[`GraphQLLiveData Integration publishes patches on 'update' 2`] = `
 Object {
   "houses": Object {
-    "patches": Array [
+    "patch": Array [
       Object {
         "from": null,
         "op": "replace",
@@ -41,7 +73,7 @@ Object {
 exports[`GraphQLLiveData Integration publishes the initialQuery immediately 1`] = `
 Object {
   "houses": Object {
-    "patches": null,
+    "patch": null,
     "query": Array [
       Object {
         "address": "123 real st",

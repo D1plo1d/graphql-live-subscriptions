@@ -4,8 +4,8 @@ import {
   GraphQLObjectType,
 } from 'graphql'
 
-const RFC4627Patch = new GraphQLObjectType({
-  name: 'RFC4627Patch',
+const RFC6902Operation = new GraphQLObjectType({
+  name: 'RFC6902Operation',
   fields: () => ({
     op: {
       type: tql`String!`,
@@ -22,4 +22,4 @@ const RFC4627Patch = new GraphQLObjectType({
   }),
 })
 
-export default RFC4627Patch
+export default RFC6902Operation

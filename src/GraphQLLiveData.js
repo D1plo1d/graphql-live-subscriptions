@@ -4,11 +4,11 @@ import {
 import memoize from 'fast-memoize'
 import tql from 'typiql'
 
-import RFC4627Patch from './RFC4627Patch'
+import RFC6902Operation from './RFC6902Operation'
 
 const GraphQLLiveData = (options = {}) => {
   const { name, resumption } = options
-
+ 
   if (name == null) {
     throw new Error('name cannot be null')
   }
@@ -33,8 +33,8 @@ const GraphQLLiveData = (options = {}) => {
         query: {
           type: getQueryType(),
         },
-        patches: {
-          type: tql`[${RFC4627Patch}!]`,
+        patch: {
+          type: tql`[${RFC6902Operation}!]`,
         },
       }
 

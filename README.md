@@ -1,6 +1,6 @@
 ## graphql-live-subscriptions
 
-`graphql-live-subscriptions` provides RFC4627-compatible JSON patches over GraphQL. Client-side code can implement live data in a few lines by using any of the available RFC4627 "JSON Patch" libraries listed here: http://jsonpatch.com/
+`graphql-live-subscriptions` provides RFC6902-compatible JSON patches over GraphQL. Client-side code can implement live data in a few lines by using any of the available RFC6902 "JSON Patch" libraries listed here: http://jsonpatch.com/
 
 **Why?** Because I wanted to have the benefits of Live Data and it was unclear if the proposed `@live` directive will ever be added to GraphQL.
 
@@ -17,14 +17,17 @@ Pull requests are very welcome.
 
 returns a `GraphQLDataType` with:
 * a `query` field - immediately responds with the initial results to the live subscription like a `query` operation would.
-* a `patches` field - RFC4627 patch sets sent to the client to update the initial `query` data.
+* a `patch` field - RFC6902 patch sets sent to the client to update the initial `query` data.
 
 #### subscribeToLiveData({ getSubscriptionProvider, getSource, type })
 
 arguments:
-* `getSubscriptionProvider` MUST be an object with a `subscribe(callback)` function.
-* `getSource` MUST be a function that returns the latest value to be passed to the query resolver.
+* `fieldName` MUST be the same name as this field
 * `type` MUST be the same type passed to `GraphQLLiveData`
+* `initialState` MUST be a function that returns the latest value to be passed to the query resolver.
+* `eventEmitter` MUST be a function that returns either an EventEmitter or a Promise. Events:
+  * `emit('update', { nextState })` - graphql-live-subscriptions will generate a patch for us by comparing the next state to the previous state and send it to the subscriber.
+  * `emit('patch', { patch })` - graphql-live-subscriptions will send the patch provided to the subscriber.
 
 returns an AsyncIterator that implements the sending of query's and patches.
 
@@ -60,14 +63,17 @@ const schema = new GraphQLSchema({
         resolve: source => source
 
         subscribe: subscribeToLiveData({
-          getSubscriptionProvider: (source, args, context, resolveInfo) => {
-            return store
-          },
-          getSource: (originalSource, args, context, resolveInfo) => {
+          fieldName: 'jedis',
+          type: JediLiveDataGraphQLType(),
+          initialState: (source, args, context, resolveInfo) => {
             return store.getJedis()
           },
-          type: JediLiveDataGraphQLType(),
-          fieldName: 'jedis',
+          eventEmitter: (source, args, context, resolveInfo) => {
+            const emitter = new EventEmitter()
+            store.subscribe(() => {
+              emitter.emit('update', store.getJedis())
+            })
+          },
         }),
       },
     }),
@@ -85,7 +91,7 @@ subscription {
       firstName
       lastName
     }
-    patches { op, path, from, value }
+    patch { op, path, from, value }
   }
 }
 ```
