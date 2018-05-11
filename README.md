@@ -24,6 +24,7 @@ returns a `GraphQLDataType` with:
 arguments:
 * `fieldName` MUST be the same name as this field
 * `type` MUST be the same type passed to `GraphQLLiveData`
+* `trackState` (optional, default: true) if true the subscription does not track the state and generate patches. This can be used to optimize servers that do not use update events. Disables 'update' events.
 * `initialState` MUST be a function that returns the latest value to be passed to the query resolver.
 * `eventEmitter` MUST be a function that returns either an EventEmitter or a Promise. Events:
   * `emit('update', { nextState })` - graphql-live-subscriptions will generate a patch for us by comparing the next state to the previous state and send it to the subscriber.

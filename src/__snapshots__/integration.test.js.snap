@@ -89,3 +89,19 @@ Object {
   },
 }
 `;
+
+exports[`GraphQLLiveData Integration when trackState is false publishes a patch on 'patch' 1`] = `
+Object {
+  "houses": Object {
+    "patch": Array [
+      Object {
+        "from": null,
+        "op": "replace",
+        "path": "/1/address",
+        "value": "42 Patch Event St.",
+      },
+    ],
+    "query": null,
+  },
+}
+`;

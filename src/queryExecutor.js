@@ -8,7 +8,12 @@ import {
   GraphQLObjectType,
 } from 'graphql'
 
-const queryExecutor = ({ context, resolveInfo, type, fieldName }) => {
+const queryExecutor = ({
+  context,
+  resolveInfo,
+  type,
+  fieldName,
+}) => {
 if (fieldName == null) {
   throw new Error('fieldName cannot be null')
 }
