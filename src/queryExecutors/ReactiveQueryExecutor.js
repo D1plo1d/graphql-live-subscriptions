@@ -4,14 +4,17 @@ import * as ReactiveNode from './reactiveTree/ReactiveNode'
 
 const createInitialQuery = (reactiveTree) => {
   const json = {}
+  console.log('create initial query!!')
 
   reactiveTree.forEach((reactiveNode) => {
     if (reactiveNode.isLeaf) {
+      console.log(reactiveNode.value)
       json[reactiveNode.nane] = reactiveNode.value
     } else {
       json[reactiveNode.name] = createInitialQuery(reactiveNode.children)
     }
   })
+  console.log(JSON.stringify(json))
 
   return json
 }
@@ -22,6 +25,7 @@ const createPatch = (reactiveTree, source) => {
   reactiveTree.forEach((reactiveNode) => {
     const value = ReactiveNode.getNextValueOrUnchanged(reactiveNode, source)
 
+    // console.log(reactiveNode.patchPath, value, reactiveNode.value)
     if (value === ReactiveNode.UNCHANGED) return
 
     if (reactiveNode.isLeaf) {
@@ -31,7 +35,7 @@ const createPatch = (reactiveTree, source) => {
         path: reactiveNode.path,
       })
     } else {
-      const childPatch = createPatch(reactiveNode.children, value)
+      const childPatch = createPatch(reactiveNode.children, reactiveNode.value)
       childPatches.push(childPatch)
     }
   })
@@ -56,7 +60,7 @@ const ReactiveQueryExecutor = ({
         subscriptionName: fieldName,
         source: data,
       })
-      createInitialQuery(reactiveTree, data)
+      return createInitialQuery(reactiveTree, data)
     },
     createPatch: async data => createPatch(reactiveTree, data),
     recordPatch: async () => {

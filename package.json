@@ -13,7 +13,8 @@
   "scripts": {
     "build": "babel src --out-dir dist",
     "prepublishOnly": "npm run build",
-    "test": "jest"
+    "test": "jest",
+    "test-debug": "node --inspect-brk node_modules/.bin/jest --runInBand --watch"
   },
   "babel": {
     "presets": [

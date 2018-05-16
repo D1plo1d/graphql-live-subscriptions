@@ -13,50 +13,58 @@ import {
 
 import * as ReactiveNode from './ReactiveNode'
 
-const createReactiveTreeInner = (
+const createReactiveTreeInner = ({
   exeContext,
   parentType,
-  selectionSet,
+  fieldDef,
+  fieldNodes,
   path,
   source,
-) => {
+}) => {
   const { schema } = exeContext
+  const { selectionSet } = fieldNodes[0]
 
-  if (isLeafType(parentType)) {
+  const reactiveNode = ReactiveNode.createNode({
+    exeContext,
+    parentType,
+    fieldDef,
+    fieldNode: fieldNodes[0],
+    path,
+    children: [],
+  })
+  const resolverResult = ReactiveNode.setInitialValue(reactiveNode, source)
+
+  debugger
+
+  if (isLeafType(fieldDef.type)) {
     return []
-
-  } else if (isListType(parentType)) {
-    if (source == null) return []
-
-    const trees = source
-      .map((sourceForArrayIndex, index) => createReactiveTreeInner(
+  } else if (isListType(fieldDef.type)) {
+    reactiveNode.children = (resolverResult || [])
+      .map((sourceForArrayIndex, index) => createReactiveTreeInner({
         exeContext,
-        parentType.ofType,
-        selectionSet,
-        addPath(path, index),
-        sourceForArrayIndex,
-      ))
+        parentType: fieldDef.type,
+        fieldDef: null, // TODO
+        path: addPath(path, index),
+        source: sourceForArrayIndex,
+      }))
 
-    return [].concat(...trees)
-
-  } else if (isNonNullType(parentType)) {
-    return createReactiveTreeInner(
+    return reactiveNode
+  } else if (isNonNullType(fieldDef.type)) {
+    return createReactiveTreeInner({
       exeContext,
-      parentType.ofType,
-      selectionSet,
+      parentType: fieldDef.type,
+      fieldDef: fieldDef.type.ofType, // TODO
       path,
       source,
-    )
-  } else if (isObjectType(parentType)) {
+    })
+  } else if (isObjectType(fieldDef.type)) {
     const fields = collectFields(
       exeContext,
-      parentType,
+      fieldDef.type,
       selectionSet,
       Object.create(null),
       Object.create(null),
     )
-
-    const reactiveTree = []
 
     /*
      * TODO: recurse down the query to find all fields that have explicitly
@@ -67,37 +75,29 @@ const createReactiveTreeInner = (
      * is present then the field and it's child fields are compared to their
      * previous values to generate a patch.
      */
-    Object.entries(fields).forEach(([responseName, fieldNodes]) => {
-      const fieldDef = getFieldDef(schema, parentType, fieldNodes[0].name.value)
-      const fieldPath = addPath(path, responseName)
-
-      const reactiveNode = ReactiveNode.createNode({
-        exeContext,
-        parentType,
-        fieldDef,
-        fieldNode: fieldNodes[0],
-        path: fieldPath,
-        children: [],
-      })
-      const resolverResult = ReactiveNode.setInitialValue(reactiveNode, source)
-
-      reactiveNode.children = createReactiveTreeInner(
-        exeContext,
+    Object.entries(fields).forEach(([childResponseName, childFieldNodes]) => {
+      const childFieldDef = getFieldDef(
+        schema,
         fieldDef.type,
-        fieldNodes[0].selectionSet,
-        fieldPath,
-        resolverResult,
+        childFieldNodes[0].name.value,
       )
+      const childPath = addPath(path, childResponseName)
 
-      // TODO: lists, nonNulls and abstract types
+      const childReactiveNode = createReactiveTreeInner({
+        exeContext,
+        parentType: fieldDef.type,
+        fieldDef: childFieldDef,
+        fieldNodes: childFieldNodes,
+        path: childPath,
+        source: resolverResult,
+      })
 
-      reactiveTree.push(reactiveNode)
+      reactiveNode.children.push(childReactiveNode)
     })
 
-    return reactiveTree
-  } else {
-    throw new Error(`unsupported GraphQL type: ${parentType}`)
+    return reactiveNode
   }
+  throw new Error(`unsupported GraphQL type: ${parentType}`)
 }
 
 const ReactiveTree = ({
@@ -107,9 +107,33 @@ const ReactiveTree = ({
   source,
 }) => {
   const { schema } = exeContext
-  const { selectionSet } = operation
 
+  /*
+   * TODO: this selection set lookup does not currently support aliases for
+   * the subscription or the `query` field.
+   */
   const rootType = schema.getSubscriptionType()
+  const { selectionSet } = operation
+  const rootFields = collectFields(
+    exeContext,
+    rootType,
+    selectionSet,
+    Object.create(null),
+    Object.create(null),
+  )
+
+  const liveDataType = rootType.getFields()[subscriptionName].type
+  const liveDataSelectionSet = rootFields[subscriptionName][0].selectionSet
+  const liveDataFields = collectFields(
+    exeContext,
+    liveDataType,
+    liveDataSelectionSet,
+    Object.create(null),
+    Object.create(null),
+  )
+
+  const queryFieldDef = liveDataType.getFields().query
+  const queryFieldNodes = liveDataFields.query
 
   // TODO: recurse down to the LiveData `query` field
 
@@ -117,13 +141,14 @@ const ReactiveTree = ({
   path = addPath(undefined, subscriptionName)
   path = addPath(path, 'query')
 
-  return createReactiveTreeInner(
+  return createReactiveTreeInner({
     exeContext,
-    rootType,
-    selectionSet,
+    parentType: liveDataType,
+    fieldDef: queryFieldDef,
+    fieldNodes: queryFieldNodes,
     path,
-    source,
-  )
+    source: { query: source },
+  })
 }
 
 export default ReactiveTree

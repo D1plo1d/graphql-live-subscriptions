@@ -8,7 +8,6 @@ import {
   resolveFieldValueOrError,
 } from 'graphql/execution/execute'
 
-
 const UNCHANGED = Symbol('UNCHANGED')
 
 export const createNode = ({
@@ -21,7 +20,7 @@ export const createNode = ({
 }) => {
   const reactiveNode = {
     isLeaf: isLeafType(fieldDef.type),
-    name: fieldNode.name,
+    name: fieldNode.name.value,
     // eg. if path is ['live', 'query', 'foo'] then patchPath is '/foo'
     patchPath: `/${responsePathAsArray(path).slice(2).join('/')}`,
     children,
@@ -49,6 +48,7 @@ const resolveField = (reactiveNode, source) => {
   } = reactiveNode
 
   const fieldName = fieldNode.name.value
+  console.log(fieldName, reactiveNode)
 
   const fieldDef = getFieldDef(exeContext.schema, parentType, fieldName)
   if (!fieldDef) {
@@ -88,9 +88,11 @@ export const setInitialValue = (reactiveNode, source) => {
 export const getNextValueOrUnchanged = (reactiveNode, source) => {
   const nextValue = resolveField(reactiveNode, source)
 
+  // console.log(reactiveNode.value)
   if (nextValue === reactiveNode.value) return UNCHANGED
 
   // eslint-disable-next-line no-param-reassign
-  reactiveNode.value = nextValue
+  // console.log(nextValue)
+  // reactiveNode.value = nextValue
   return nextValue
 }

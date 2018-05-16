@@ -202,7 +202,8 @@ const expectSubscriptionResponse = async (subscription) => {
   const result = await subscription.next()
 
   expect(result.done).toEqual(false)
-  expect(result.value.data).toMatchSnapshot()
+  expect(result
+    .data).toMatchSnapshot()
 }
 
 describe('GraphQLLiveData Integration', () => {
