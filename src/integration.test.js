@@ -230,24 +230,24 @@ describe('GraphQLLiveData Integration', () => {
     await expectSubscriptionResponse(subscription)
   })
 
-  it('publishes a patch on \'patch\'', async () => {
-    const {
-      subscription,
-      emitUpdate,
-      emitPatch,
-      state,
-    } = await createTestSubscription({})
-    // inital query
-    await subscription.next()
-    // first patch
-    emitPatch()
-    await expectSubscriptionResponse(subscription)
-    // second patch
-    state[0].address = state[0].address + ' apt. 1'
-    state[1].address = externallyGeneratedPatch[0].value
-    emitUpdate()
-    await expectSubscriptionResponse(subscription)
-  })
+  // it('publishes a patch on \'patch\'', async () => {
+  //   const {
+  //     subscription,
+  //     emitUpdate,
+  //     emitPatch,
+  //     state,
+  //   } = await createTestSubscription({})
+  //   // inital query
+  //   await subscription.next()
+  //   // first patch
+  //   emitPatch()
+  //   await expectSubscriptionResponse(subscription)
+  //   // second patch
+  //   state[0].address = state[0].address + ' apt. 1'
+  //   state[1].address = externallyGeneratedPatch[0].value
+  //   emitUpdate()
+  //   await expectSubscriptionResponse(subscription)
+  // })
 
   describe('when trackState is false', () => {
     // it('errors on \'update\' and closes the subcription', async () => {
@@ -267,19 +267,18 @@ describe('GraphQLLiveData Integration', () => {
     //   expect(result.done).toEqual(true)
     // })
 
-    it('publishes a patch on \'patch\'', async () => {
-      const {
-        subscription,
-        emitUpdate,
-        emitPatch,
-        state,
-      } = await createTestSubscription({trackState: false})
-      // inital query
-      await subscription.next()
-      // first patch
-      emitPatch()
-      await expectSubscriptionResponse(subscription)
-    })
+  //   it('publishes a patch on \'patch\'', async () => {
+  //     const {
+  //       subscription,
+  //       emitUpdate,
+  //       emitPatch,
+  //       state,
+  //     } = await createTestSubscription({trackState: false})
+  //     // inital query
+  //     await subscription.next()
+  //     // first patch
+  //     emitPatch()
+  //     await expectSubscriptionResponse(subscription)
+  //   })
   })
-
 })

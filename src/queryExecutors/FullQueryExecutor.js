@@ -8,7 +8,7 @@ import {
   GraphQLObjectType,
 } from 'graphql'
 
-const queryExecutor = ({
+const FullQueryExecutor = ({
   context,
   resolveInfo,
   type,
@@ -28,7 +28,7 @@ if (fieldName == null) {
     if (argumentNode.name == null || argumentNode.name.value == null) {
       throw new Error('argument name cannot be null')
     }
-    const name = argumentNode.name.value;
+    const name = argumentNode.name.value
     const valueNode = argumentNode.value
     if (valueNode.kind === 'Variable') {
       const value = resolveInfo.variableValues[valueNode.name.value]
@@ -134,4 +134,4 @@ if (fieldName == null) {
   }
 }
 
-export default queryExecutor
+export default FullQueryExecutor

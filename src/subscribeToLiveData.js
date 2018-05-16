@@ -1,6 +1,7 @@
 import { PubSub } from 'graphql-subscriptions'
 
-import queryExecutor from './queryExecutor'
+// import queryExecutor from './queryExecutors/FullQueryExecutor'
+import queryExecutor from './queryExecutors/ReactiveQueryExecutor'
 
 const eventName = 'liveData'
 
@@ -16,6 +17,10 @@ const subscribeToLiveData = ({
   context,
   resolveInfo,
 ) => {
+  const onError = (e) => {
+    console.error(e)
+  }
+
   const connectionPubSub = new PubSub()
   const asyncIterator = connectionPubSub.asyncIterator(eventName)
 
@@ -59,12 +64,20 @@ const subscribeToLiveData = ({
     )
   }
 
-  const { initialQuery, createPatch, recordPatch } = queryExecutor({
-    context,
-    resolveInfo,
-    type,
-    fieldName,
-  })
+  const { initialQuery, createPatch, recordPatch } = (() => {
+    try {
+      return queryExecutor({
+        context,
+        resolveInfo,
+        type,
+        fieldName,
+      })
+    } catch (e) {
+      onError(e)
+      throw e
+    }
+  })()
+
 
   const publishInitialQuery = async () => {
     /*
@@ -72,7 +85,12 @@ const subscribeToLiveData = ({
      * in later events
      */
     if (trackState) {
-      await initialQuery(initialState)
+      try {
+        await initialQuery(initialState)
+      } catch (e) {
+        onError(e)
+        throw e
+      }
     }
     /*
      * the source is used to generate the initial state and to publish a `query`
@@ -94,8 +112,13 @@ const subscribeToLiveData = ({
       ))
     }
     /* generate and send the patch on state changes */
-    const patch = await createPatch(nextState)
-    publishPatch(patch)
+    try {
+      const patch = await createPatch(nextState)
+      publishPatch(patch)
+    } catch (e) {
+      onError(e)
+      throw e
+    }
   }
 
   const onPatch = async ({ patch }) => {

@@ -96,3 +96,85 @@ subscription {
   }
 }
 ```
+
+## Choosing a QueryExecutor
+
+Two QueryExecutors are provided with graphql-live-subscriptions.
+
+### FullQueryExecutor
+
+**Pros**
+
+* Compatible with all GraphQL Schemas
+* Simple to use
+
+**Cons**
+
+* Slower then ReactiveQueryExecutor
+
+The FullQueryExecutor re-executes the entire query on every `update` and diffs
+the results to generate patches.
+
+FullQueryExecutor is slower then the ReactiveQueryExecutor but since it uses
+graphql's `execute` function internally it should be compatible with all
+schemas.
+
+### ReactiveQueryExecutor
+
+**Pros**
+
+* Faster then the FullQueryExecutor
+
+**Cons**
+
+* Unstable - uses internal GraphQL JS APIs that may break between GraphQL JS releases.
+* Cannot handle Errors (*yet* If you can fix this a Pull Requests would be very
+  welcome)
+* Not compatible with resolve functions that return a Promise (*yet* If you can fix this a Pull Requests would be very
+  welcome)
+* Requires Source Root configuration for some schemas (see below)
+
+The ReactiveQueryExecutor uses tree diffing on the results of your
+GraphQL resolvers to generate patches. The tree diffing algorithim optimizes the
+ReactiveQueryExecutor by not executing comparisions on branches of the query
+tree where the result of a parent field's resolve function hasn't changed.
+
+ReactiveQueryExecutor is similar to React Pure Components in that it checks for
+a change in the data and if there is none then it does not diff any of the child
+fields by default.
+
+#### Source Roots
+
+Each Source Root is a root node for the tree diffing algorithm. By default the
+query field resolver is used as a Source Root so any changes to it's value or
+values in objects nested under it will create patches.
+
+The value of Source Roots comes when you have a scenario where a parent's
+field's resolve value does not include it's child field's resolve values.
+
+**Example**
+
+For example if the query field contains field `a` and field `a` contains field
+`b` of type `B` so we subscribe to:
+
+```graphql
+subscribe {
+  liveData {
+    query {
+      a: b
+    }
+  }
+}
+```
+
+Let's consider what happens when `b`'s value changes.
+
+This would work with the default Source Root if our query resolver
+returns an immutableJS object `Map({a: Map({b: 'B_VALUE' }) })` because any
+change to `b` will result in a new top level immutable Map.
+
+However if our query resolver returns an immutableJS object Map
+`Map({a: 'A_VALUE'})` and then `b`'s resolver returns `Map{b: 'B_VALUE'}` then
+the default Source Roots will not detect changes to `b` because the object
+returned by the query field has not changed. In this scenario we would need to
+use `ReactiveQueryExecutor({ sourceRoots: ['B'] })` to receive patches for `b`.
