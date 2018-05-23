@@ -1,4 +1,5 @@
 import {
+  isListType,
   isLeafType,
   responsePathAsArray,
 } from 'graphql'
@@ -8,26 +9,29 @@ import {
   resolveFieldValueOrError,
 } from 'graphql/execution/execute'
 
-const UNCHANGED = Symbol('UNCHANGED')
+export const UNCHANGED = Symbol('UNCHANGED')
 
 export const createNode = ({
   exeContext,
   parentType,
-  fieldDef,
-  fieldNode,
+  type,
+  fieldNodes,
   path,
   children,
 }) => {
   const reactiveNode = {
-    isLeaf: isLeafType(fieldDef.type),
-    name: fieldNode.name.value,
+    isLeaf: isLeafType(type),
+    isList: isListType(type),
+    isListEntry: isListType(parentType),
+    name: fieldNodes[0].name.value,
     // eg. if path is ['live', 'query', 'foo'] then patchPath is '/foo'
     patchPath: `/${responsePathAsArray(path).slice(2).join('/')}`,
     children,
     value: undefined,
     exeContext,
     parentType,
-    fieldNode,
+    type,
+    fieldNodes,
     graphqlPath: path,
   }
   return reactiveNode
@@ -43,12 +47,13 @@ const resolveField = (reactiveNode, source) => {
   const {
     exeContext,
     parentType,
-    fieldNode,
+    fieldNodes,
     graphqlPath,
   } = reactiveNode
 
-  const fieldName = fieldNode.name.value
-  console.log(fieldName, reactiveNode)
+  const fieldName = fieldNodes[0].name.value
+
+  if (reactiveNode.isListEntry) return source
 
   const fieldDef = getFieldDef(exeContext.schema, parentType, fieldName)
   if (!fieldDef) {
@@ -60,7 +65,7 @@ const resolveField = (reactiveNode, source) => {
   const info = buildResolveInfo(
     exeContext,
     fieldDef,
-    [fieldNode],
+    fieldNodes,
     parentType,
     graphqlPath,
   )
@@ -70,13 +75,14 @@ const resolveField = (reactiveNode, source) => {
   const result = resolveFieldValueOrError(
     exeContext,
     fieldDef,
-    [fieldNode],
+    fieldNodes,
     resolveFn,
     source,
     info,
   )
+  // console.log(fieldName, result)
 
-  return result
+  return result[fieldName]
 }
 
 export const setInitialValue = (reactiveNode, source) => {
@@ -88,7 +94,7 @@ export const setInitialValue = (reactiveNode, source) => {
 export const getNextValueOrUnchanged = (reactiveNode, source) => {
   const nextValue = resolveField(reactiveNode, source)
 
-  // console.log(reactiveNode.value)
+  // console.log(reactiveNode.name, nextValue)
   if (nextValue === reactiveNode.value) return UNCHANGED
 
   // eslint-disable-next-line no-param-reassign

@@ -2,45 +2,56 @@ import executionContextFromInfo from './util/executionContextFromInfo'
 import ReactiveTree from './reactiveTree/ReactiveTree'
 import * as ReactiveNode from './reactiveTree/ReactiveNode'
 
-const createInitialQuery = (reactiveTree) => {
-  const json = {}
-  console.log('create initial query!!')
+const createInitialQuery = (reactiveNode) => {
+  const json = reactiveNode.isList ? [] : {}
 
-  reactiveTree.forEach((reactiveNode) => {
-    if (reactiveNode.isLeaf) {
-      console.log(reactiveNode.value)
-      json[reactiveNode.nane] = reactiveNode.value
+  reactiveNode.children.forEach((childNode) => {
+    const value = (() => {
+      if (childNode.isLeaf || childNode.value == null) {
+        return childNode.value
+      }
+      return createInitialQuery(childNode)
+    })()
+    if (reactiveNode.isList) {
+      json.push(value)
     } else {
-      json[reactiveNode.name] = createInitialQuery(reactiveNode.children)
+      json[childNode.name] = value
     }
   })
-  console.log(JSON.stringify(json))
 
   return json
 }
 
-const createPatch = (reactiveTree, source) => {
-  const ops = []
-  const childPatches = []
-  reactiveTree.forEach((reactiveNode) => {
-    const value = ReactiveNode.getNextValueOrUnchanged(reactiveNode, source)
+const createPatch = (reactiveNode, source) => {
+  const value = ReactiveNode.getNextValueOrUnchanged(reactiveNode, source)
 
-    // console.log(reactiveNode.patchPath, value, reactiveNode.value)
-    if (value === ReactiveNode.UNCHANGED) return
+  console.log(reactiveNode.name, reactiveNode.type, value === ReactiveNode.UNCHANGED)
+  if (value === ReactiveNode.UNCHANGED) {
+    return []
+  }
+  if (reactiveNode.isLeaf) {
+    console.log('CHANGE', reactiveNode.name, source, value)
+    return [{
+      op: 'replace',
+      value,
+      path: reactiveNode.patchPath,
+    }]
+  }
 
-    if (reactiveNode.isLeaf) {
-      ops.push({
-        op: 'replace',
-        value,
-        path: reactiveNode.path,
-      })
-    } else {
-      const childPatch = createPatch(reactiveNode.children, reactiveNode.value)
-      childPatches.push(childPatch)
-    }
+  // console.log(reactiveNode.name, reactiveNode.children)
+  const childPatches = reactiveNode.children.map((childNode, index) => {
+    const childSource = reactiveNode.isList ? value[index] : value
+    // console.log(index, reactiveNode.isList, key, value[key])
+
+    const childPatch = createPatch(childNode, childSource)
+
+    // console.log(childNode.patchPath, value, childNode.value)
+    // console.log(childNode.patchPath, value)
+    return childPatch
   })
+  console.log([].concat(...childPatches))
 
-  return ops.concat(...childPatches)
+  return [].concat(...childPatches)
 }
 
 const ReactiveQueryExecutor = ({
@@ -60,9 +71,13 @@ const ReactiveQueryExecutor = ({
         subscriptionName: fieldName,
         source: data,
       })
-      return createInitialQuery(reactiveTree, data)
+      return createInitialQuery(reactiveTree.queryRoot, data)
     },
-    createPatch: async data => createPatch(reactiveTree, data),
+    // TODO: create patches for all source roots once source roots are
+    // implemented
+    createPatch: async data => (
+      createPatch(reactiveTree.queryRoot, { query: data })
+    ),
     recordPatch: async () => {
       const message = (
         'recordPatch is not yet implemented for ReactiveQueryExecutor'

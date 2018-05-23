@@ -13,22 +13,31 @@ import {
 
 import * as ReactiveNode from './ReactiveNode'
 
-const createReactiveTreeInner = ({
-  exeContext,
-  parentType,
-  fieldDef,
-  fieldNodes,
-  path,
-  source,
-}) => {
+const createReactiveTreeInner = (opts) => {
+  const {
+    exeContext,
+    parentType,
+    type,
+    fieldNodes,
+    path,
+    source,
+  } = opts
+
+  if (isNonNullType(type)) {
+    return createReactiveTreeInner({
+      ...opts,
+      type: type.ofType,
+    })
+  }
+
   const { schema } = exeContext
   const { selectionSet } = fieldNodes[0]
 
   const reactiveNode = ReactiveNode.createNode({
     exeContext,
     parentType,
-    fieldDef,
-    fieldNode: fieldNodes[0],
+    type,
+    fieldNodes,
     path,
     children: [],
   })
@@ -36,31 +45,34 @@ const createReactiveTreeInner = ({
 
   debugger
 
-  if (isLeafType(fieldDef.type)) {
-    return []
-  } else if (isListType(fieldDef.type)) {
-    reactiveNode.children = (resolverResult || [])
-      .map((sourceForArrayIndex, index) => createReactiveTreeInner({
+  if (isListType(type)) {
+    console.log(fieldNodes[0].name.value)
+    // console.log(type)
+    // console.log(type.ofType)
+    // console.log(resolverResult)
+    const resultList = (() => {
+      if (resolverResult == null) {
+        return []
+      }
+      if (resolverResult.map != null) {
+        return resolverResult
+      }
+      return [resolverResult]
+    })()
+    reactiveNode.children = resultList.map((sourceForArrayIndex, index) => (
+      createReactiveTreeInner({
         exeContext,
-        parentType: fieldDef.type,
-        fieldDef: null, // TODO
+        parentType: type,
+        type: type.ofType,
+        fieldNodes,
         path: addPath(path, index),
         source: sourceForArrayIndex,
-      }))
-
-    return reactiveNode
-  } else if (isNonNullType(fieldDef.type)) {
-    return createReactiveTreeInner({
-      exeContext,
-      parentType: fieldDef.type,
-      fieldDef: fieldDef.type.ofType, // TODO
-      path,
-      source,
-    })
-  } else if (isObjectType(fieldDef.type)) {
+      })
+    ))
+  } else if (isObjectType(type)) {
     const fields = collectFields(
       exeContext,
-      fieldDef.type,
+      type,
       selectionSet,
       Object.create(null),
       Object.create(null),
@@ -78,15 +90,15 @@ const createReactiveTreeInner = ({
     Object.entries(fields).forEach(([childResponseName, childFieldNodes]) => {
       const childFieldDef = getFieldDef(
         schema,
-        fieldDef.type,
+        type,
         childFieldNodes[0].name.value,
       )
       const childPath = addPath(path, childResponseName)
 
       const childReactiveNode = createReactiveTreeInner({
         exeContext,
-        parentType: fieldDef.type,
-        fieldDef: childFieldDef,
+        parentType: type,
+        type: childFieldDef.type,
         fieldNodes: childFieldNodes,
         path: childPath,
         source: resolverResult,
@@ -94,10 +106,11 @@ const createReactiveTreeInner = ({
 
       reactiveNode.children.push(childReactiveNode)
     })
-
-    return reactiveNode
+  } else if (!isLeafType(type) && !isNonNullType(type)) {
+    throw new Error(`unsupported GraphQL type: ${type}`)
   }
-  throw new Error(`unsupported GraphQL type: ${parentType}`)
+
+  return reactiveNode
 }
 
 const ReactiveTree = ({
@@ -141,14 +154,16 @@ const ReactiveTree = ({
   path = addPath(undefined, subscriptionName)
   path = addPath(path, 'query')
 
-  return createReactiveTreeInner({
+  const queryRoot = createReactiveTreeInner({
     exeContext,
     parentType: liveDataType,
-    fieldDef: queryFieldDef,
+    type: queryFieldDef.type,
     fieldNodes: queryFieldNodes,
     path,
     source: { query: source },
   })
+
+  return { queryRoot }
 }
 
 export default ReactiveTree
