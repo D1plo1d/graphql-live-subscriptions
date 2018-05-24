@@ -99,7 +99,7 @@ const subscribeToLiveData = ({
     connectionPubSub.publish(eventName, { query: initialState })
   }
 
-  const publishPatch = patch => {
+  const publishPatch = (patch) => {
     if (patch != null && patch.length > 0) {
       connectionPubSub.publish(eventName, { patch })
     }
@@ -107,9 +107,9 @@ const subscribeToLiveData = ({
 
   const onUpdate = async ({ nextState }) => {
     if (trackState === false) {
-      asyncIterator.throw(new Error(
-        'Cannot update subscription with trackState: false'
-      ))
+      const msg = 'Cannot update subscription with trackState: false'
+      const error = new Error(msg)
+      asyncIterator.throw(error)
     }
     /* generate and send the patch on state changes */
     try {

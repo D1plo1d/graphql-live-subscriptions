@@ -1,37 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`GraphQLLiveData Integration publishes a patch on 'patch' 1`] = `
-Object {
-  "houses": Object {
-    "patch": Array [
-      Object {
-        "from": null,
-        "op": "replace",
-        "path": "/1/address",
-        "value": "42 Patch Event St.",
-      },
-    ],
-    "query": null,
-  },
-}
-`;
-
-exports[`GraphQLLiveData Integration publishes a patch on 'patch' 2`] = `
-Object {
-  "houses": Object {
-    "patch": Array [
-      Object {
-        "from": null,
-        "op": "replace",
-        "path": "/0/address",
-        "value": "123 real st apt. 1",
-      },
-    ],
-    "query": null,
-  },
-}
-`;
-
 exports[`GraphQLLiveData Integration publishes patches on 'update' 1`] = `
 Object {
   "houses": Object {
@@ -55,14 +23,14 @@ Object {
       Object {
         "from": null,
         "op": "replace",
-        "path": "/1/address",
-        "value": "200 legit rd apt. 2",
+        "path": "/0/address",
+        "value": "123 real st apt. 1",
       },
       Object {
         "from": null,
         "op": "replace",
-        "path": "/0/address",
-        "value": "123 real st apt. 1",
+        "path": "/1/address",
+        "value": "200 legit rd apt. 2",
       },
     ],
     "query": null,
@@ -86,22 +54,6 @@ Object {
         "numberOfCats": 0,
       },
     ],
-  },
-}
-`;
-
-exports[`GraphQLLiveData Integration when trackState is false publishes a patch on 'patch' 1`] = `
-Object {
-  "houses": Object {
-    "patch": Array [
-      Object {
-        "from": null,
-        "op": "replace",
-        "path": "/1/address",
-        "value": "42 Patch Event St.",
-      },
-    ],
-    "query": null,
   },
 }
 `;

@@ -80,7 +80,6 @@ const resolveField = (reactiveNode, source) => {
     source,
     info,
   )
-  // console.log(fieldName, result)
 
   return result[fieldName]
 }
@@ -94,11 +93,10 @@ export const setInitialValue = (reactiveNode, source) => {
 export const getNextValueOrUnchanged = (reactiveNode, source) => {
   const nextValue = resolveField(reactiveNode, source)
 
-  // console.log(reactiveNode.name, nextValue)
   if (nextValue === reactiveNode.value) return UNCHANGED
 
   // eslint-disable-next-line no-param-reassign
-  // console.log(nextValue)
-  // reactiveNode.value = nextValue
+  reactiveNode.value = nextValue
+
   return nextValue
 }

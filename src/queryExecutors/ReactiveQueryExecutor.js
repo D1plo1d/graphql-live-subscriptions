@@ -22,36 +22,30 @@ const createInitialQuery = (reactiveNode) => {
   return json
 }
 
-const createPatch = (reactiveNode, source) => {
+const createPatch = (reactiveNode, source, patch = []) => {
+  const previousValue = reactiveNode.value
   const value = ReactiveNode.getNextValueOrUnchanged(reactiveNode, source)
 
-  console.log(reactiveNode.name, reactiveNode.type, value === ReactiveNode.UNCHANGED)
   if (value === ReactiveNode.UNCHANGED) {
-    return []
+    return patch
   }
   if (reactiveNode.isLeaf) {
-    console.log('CHANGE', reactiveNode.name, source, value)
-    return [{
+    patch.push({
       op: 'replace',
       value,
       path: reactiveNode.patchPath,
-    }]
+    })
+    return patch
   }
 
-  // console.log(reactiveNode.name, reactiveNode.children)
-  const childPatches = reactiveNode.children.map((childNode, index) => {
+
+  reactiveNode.children.forEach((childNode, index) => {
     const childSource = reactiveNode.isList ? value[index] : value
-    // console.log(index, reactiveNode.isList, key, value[key])
 
-    const childPatch = createPatch(childNode, childSource)
-
-    // console.log(childNode.patchPath, value, childNode.value)
-    // console.log(childNode.patchPath, value)
-    return childPatch
+    const childOps = createPatch(childNode, childSource, patch)
   })
-  console.log([].concat(...childPatches))
 
-  return [].concat(...childPatches)
+  return patch
 }
 
 const ReactiveQueryExecutor = ({

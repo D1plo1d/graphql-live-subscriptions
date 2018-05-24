@@ -6,10 +6,10 @@ import {
   isNonNullType,
 } from 'graphql'
 import {
-  collectFields,
   getFieldDef,
   addPath,
 } from 'graphql/execution/execute'
+import collectSubFields from '../util/collectSubFields'
 
 import * as ReactiveNode from './ReactiveNode'
 
@@ -31,7 +31,6 @@ const createReactiveTreeInner = (opts) => {
   }
 
   const { schema } = exeContext
-  const { selectionSet } = fieldNodes[0]
 
   const reactiveNode = ReactiveNode.createNode({
     exeContext,
@@ -43,13 +42,7 @@ const createReactiveTreeInner = (opts) => {
   })
   const resolverResult = ReactiveNode.setInitialValue(reactiveNode, source)
 
-  debugger
-
   if (isListType(type)) {
-    console.log(fieldNodes[0].name.value)
-    // console.log(type)
-    // console.log(type.ofType)
-    // console.log(resolverResult)
     const resultList = (() => {
       if (resolverResult == null) {
         return []
@@ -70,13 +63,11 @@ const createReactiveTreeInner = (opts) => {
       })
     ))
   } else if (isObjectType(type)) {
-    const fields = collectFields(
+    const fields = collectSubFields({
       exeContext,
-      type,
-      selectionSet,
-      Object.create(null),
-      Object.create(null),
-    )
+      returnType: type,
+      fieldNodes,
+    })
 
     /*
      * TODO: recurse down the query to find all fields that have explicitly
@@ -126,29 +117,22 @@ const ReactiveTree = ({
    * the subscription or the `query` field.
    */
   const rootType = schema.getSubscriptionType()
-  const { selectionSet } = operation
-  const rootFields = collectFields(
+
+  const rootFields = collectSubFields({
     exeContext,
-    rootType,
-    selectionSet,
-    Object.create(null),
-    Object.create(null),
-  )
+    returnType: rootType,
+    fieldNodes: [operation],
+  })
 
   const liveDataType = rootType.getFields()[subscriptionName].type
-  const liveDataSelectionSet = rootFields[subscriptionName][0].selectionSet
-  const liveDataFields = collectFields(
+
+  const liveDataFields = collectSubFields({
     exeContext,
-    liveDataType,
-    liveDataSelectionSet,
-    Object.create(null),
-    Object.create(null),
-  )
+    returnType: liveDataType,
+    fieldNodes: rootFields[subscriptionName],
+  })
 
   const queryFieldDef = liveDataType.getFields().query
-  const queryFieldNodes = liveDataFields.query
-
-  // TODO: recurse down to the LiveData `query` field
 
   let path
   path = addPath(undefined, subscriptionName)
@@ -158,7 +142,7 @@ const ReactiveTree = ({
     exeContext,
     parentType: liveDataType,
     type: queryFieldDef.type,
-    fieldNodes: queryFieldNodes,
+    fieldNodes: liveDataFields.query,
     path,
     source: { query: source },
   })

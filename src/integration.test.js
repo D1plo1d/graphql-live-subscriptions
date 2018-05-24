@@ -51,7 +51,8 @@ const externallyGeneratedPatch = [
 ]
 
 const createTestSubscription = async ({ trackState }) => {
-  let emitUpdateInner, patchCB
+  let emitUpdateInner
+  let patchCB
   const emitUpdate = () => emitUpdateInner()
   const emitPatch = patch => patchCB(patch)
   let state = [
@@ -208,11 +209,11 @@ const expectSubscriptionResponse = async (subscription) => {
 }
 
 describe('GraphQLLiveData Integration', () => {
-  // it('publishes the initialQuery immediately', async () => {
-  //   const { subscription } = await createTestSubscription({})
-  //
-  //   await expectSubscriptionResponse(subscription)
-  // })
+  it('publishes the initialQuery immediately', async () => {
+    const { subscription } = await createTestSubscription({})
+
+    await expectSubscriptionResponse(subscription)
+  })
 
   it('publishes patches on \'update\'', async () => {
     const {
@@ -235,6 +236,7 @@ describe('GraphQLLiveData Integration', () => {
     setState(nextState)
     emitUpdate()
     await expectSubscriptionResponse(subscription)
+
     // second patch
     nextState = [...nextState]
     nextState[0] = {
@@ -269,24 +271,24 @@ describe('GraphQLLiveData Integration', () => {
   //   await expectSubscriptionResponse(subscription)
   // })
 
-  describe('when trackState is false', () => {
-    // it('errors on \'update\' and closes the subcription', async () => {
-    //   const {
-    //     subscription,
-    //     emitUpdate,
-    //     emitPatch,
-    //     state,
-    //   } = await createTestSubscription({trackState: false})
-    //   // inital query
-    //   await subscription.next()
-    //   // first patch
-    //   state[0].address = state[0].address + ' apt. 1'
-    //   emitUpdate()
-    //   const result = await subscription.next()
-    //
-    //   expect(result.done).toEqual(true)
-    // })
-
+  // describe('when trackState is false', () => {
+  //   it('errors on \'update\' and closes the subcription', async () => {
+  //     const {
+  //       subscription,
+  //       emitUpdate,
+  //       emitPatch,
+  //       state,
+  //     } = await createTestSubscription({trackState: false})
+  //     // inital query
+  //     await subscription.next()
+  //     // first patch
+  //     state[0].address = state[0].address + ' apt. 1'
+  //     emitUpdate()
+  //     const result = await subscription.next()
+  //
+  //     expect(result.done).toEqual(true)
+  //   })
+  //
   //   it('publishes a patch on \'patch\'', async () => {
   //     const {
   //       subscription,
@@ -300,5 +302,5 @@ describe('GraphQLLiveData Integration', () => {
   //     emitPatch()
   //     await expectSubscriptionResponse(subscription)
   //   })
-  })
+  // })
 })
