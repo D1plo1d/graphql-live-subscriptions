@@ -126,6 +126,7 @@ const ReactiveTree = ({
   operation,
   subscriptionName = 'live',
   source,
+  sourceRoots = {},
 }) => {
   const { schema } = exeContext
 
@@ -155,7 +156,11 @@ const ReactiveTree = ({
   graphqlPath = addPath(undefined, subscriptionName)
   graphqlPath = addPath(graphqlPath, 'query')
 
-  const sourceRootConfig = {} // TODO
+  const sourceRootConfig = {}
+  Object.entries(sourceRoots).forEach(([typeName, fieldName]) => {
+    sourceRootConfig[typeName] = sourceRootConfig[typeName] || {}
+    sourceRootConfig[typeName][fieldName] = {}
+  })
 
   const queryRoot = createReactiveTreeInner({
     exeContext,

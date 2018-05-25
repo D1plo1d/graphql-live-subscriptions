@@ -11,6 +11,7 @@ const subscribeToLiveData = ({
   trackState = true,
   eventEmitter: getEventEmitter,
   initialState: getInitialState,
+  sourceRoots = {},
 }) => async (
   source,
   args,
@@ -71,6 +72,7 @@ const subscribeToLiveData = ({
         resolveInfo,
         type,
         fieldName,
+        sourceRoots,
       })
     } catch (e) {
       onError(e)

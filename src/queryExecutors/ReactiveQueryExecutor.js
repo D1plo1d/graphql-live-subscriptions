@@ -52,6 +52,7 @@ const ReactiveQueryExecutor = ({
   context,
   resolveInfo,
   fieldName,
+  sourceRoots,
 }) => {
   const exeContext = executionContextFromInfo(resolveInfo, context)
 
@@ -64,6 +65,7 @@ const ReactiveQueryExecutor = ({
         operation: resolveInfo.operation,
         subscriptionName: fieldName,
         source: data,
+        sourceRoots,
       })
       return createInitialQuery(reactiveTree.queryRoot, data)
     },
