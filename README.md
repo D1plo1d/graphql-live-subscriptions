@@ -24,13 +24,38 @@ returns a `GraphQLDataType` with:
 arguments:
 * `fieldName` MUST be the same name as this field
 * `type` MUST be the same type passed to `GraphQLLiveData`
-* `trackState` (optional, default: true) if true the subscription does not track the state and generate patches. This can be used to optimize servers that do not use update events. Disables 'update' events.
 * `initialState` MUST be a function that returns the latest value to be passed to the query resolver.
 * `eventEmitter` MUST be a function that returns either an EventEmitter or a Promise. Events:
   * `emit('update', { nextState })` - graphql-live-subscriptions will generate a patch for us by comparing the next state to the previous state and send it to the subscriber.
   * `emit('patch', { patch })` - graphql-live-subscriptions will send the patch provided to the subscriber.
 
 returns an AsyncIterator that implements the sending of query's and patches.
+
+TODO: find a place for this comment
+/*
+ * 'update' and 'patch' events cause a patch to be sent to the GraphQL client.
+ *
+ * For most usecases 'update' events should be sufficient.
+ *
+ * From the client's perspective the two events are indistinguishable.
+ *
+ * 'update' events are generally easier to create however 'patch' events may
+ * be more performant in some situations.
+ *
+ * ## update events
+ *
+ * Example Usage: `eventEmitter.emit('update')`
+ *
+ * compares the previous result of the GraphQL Live Query to the current
+ * result and generates a patch based on the diff.
+ *
+ * ## patch events
+ *
+ * Example Useage: `eventEmitter.emit('patch', rfc6902Patch)`
+ *
+ * Passes through an array of RFC6902 ops to the GraphQL client.
+ */
+
 
 ### Useage
 

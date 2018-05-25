@@ -6,9 +6,8 @@ import queryExecutor from './queryExecutors/ReactiveQueryExecutor'
 const eventName = 'liveData'
 
 const subscribeToLiveData = ({
-  fieldName,
+  fieldName = 'live',
   type,
-  trackState = true,
   eventEmitter: getEventEmitter,
   initialState: getInitialState,
   sourceRoots = {},
@@ -24,10 +23,6 @@ const subscribeToLiveData = ({
 
   const connectionPubSub = new PubSub()
   const asyncIterator = connectionPubSub.asyncIterator(eventName)
-
-  if(typeof trackState != 'boolean') {
-    throw new Error('trackState must be a boolean')
-  }
 
   if (type == null) {
     throw new Error('subscribeToLiveData \'type\' argument is required')
@@ -86,13 +81,11 @@ const subscribeToLiveData = ({
      * initialQuery sets the state of the query executor to diff against
      * in later events
      */
-    if (trackState) {
-      try {
-        await initialQuery(initialState)
-      } catch (e) {
-        onError(e)
-        throw e
-      }
+    try {
+      await initialQuery(initialState)
+    } catch (e) {
+      onError(e)
+      throw e
     }
     /*
      * the source is used to generate the initial state and to publish a `query`
@@ -108,11 +101,6 @@ const subscribeToLiveData = ({
   }
 
   const onUpdate = async ({ nextState }) => {
-    if (trackState === false) {
-      const msg = 'Cannot update subscription with trackState: false'
-      const error = new Error(msg)
-      asyncIterator.throw(error)
-    }
     /* generate and send the patch on state changes */
     try {
       const patch = await createPatch(nextState)
@@ -125,9 +113,7 @@ const subscribeToLiveData = ({
 
   const onPatch = async ({ patch }) => {
     /* send the externally generated patch and update the state */
-    if (trackState) {
-      await recordPatch(patch)
-    }
+    await recordPatch(patch)
     publishPatch(patch)
   }
 
