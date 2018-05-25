@@ -13,14 +13,15 @@ import collectSubFields from '../util/collectSubFields'
 
 import * as ReactiveNode from './ReactiveNode'
 
-const createReactiveTreeInner = (opts) => {
+export const createReactiveTreeInner = (opts) => {
   const {
     exeContext,
     parentType,
     type,
     fieldNodes,
-    path,
+    graphqlPath,
     source,
+    sourceRootConfig,
   } = opts
 
   if (isNonNullType(type)) {
@@ -32,14 +33,27 @@ const createReactiveTreeInner = (opts) => {
 
   const { schema } = exeContext
 
+  const parentRoots = sourceRootConfig[parentType.name]
+  const fieldName = fieldNodes[0].name.value
+  const isSourceRoot = (
+    parentType.name && fieldName && parentRoots && parentRoots[fieldName]
+  )
+
   const reactiveNode = ReactiveNode.createNode({
     exeContext,
     parentType,
     type,
     fieldNodes,
-    path,
+    graphqlPath,
     children: [],
+    sourceRootConfig,
+    isSourceRoot,
   })
+
+  if (isSourceRoot) {
+    parentRoots[fieldName][reactiveNode.patchPath] = reactiveNode
+  }
+
   const resolverResult = ReactiveNode.setInitialValue(reactiveNode, source)
 
   if (isListType(type)) {
@@ -52,14 +66,16 @@ const createReactiveTreeInner = (opts) => {
       }
       return [resolverResult]
     })()
+
     reactiveNode.children = resultList.map((sourceForArrayIndex, index) => (
       createReactiveTreeInner({
         exeContext,
         parentType: type,
         type: type.ofType,
         fieldNodes,
-        path: addPath(path, index),
+        graphqlPath: addPath(graphqlPath, index),
         source: sourceForArrayIndex,
+        sourceRootConfig,
       })
     ))
   } else if (isObjectType(type)) {
@@ -84,15 +100,16 @@ const createReactiveTreeInner = (opts) => {
         type,
         childFieldNodes[0].name.value,
       )
-      const childPath = addPath(path, childResponseName)
+      const childPath = addPath(graphqlPath, childResponseName)
 
       const childReactiveNode = createReactiveTreeInner({
         exeContext,
         parentType: type,
         type: childFieldDef.type,
         fieldNodes: childFieldNodes,
-        path: childPath,
+        graphqlPath: childPath,
         source: resolverResult,
+        sourceRootConfig,
       })
 
       reactiveNode.children.push(childReactiveNode)
@@ -134,17 +151,20 @@ const ReactiveTree = ({
 
   const queryFieldDef = liveDataType.getFields().query
 
-  let path
-  path = addPath(undefined, subscriptionName)
-  path = addPath(path, 'query')
+  let graphqlPath
+  graphqlPath = addPath(undefined, subscriptionName)
+  graphqlPath = addPath(graphqlPath, 'query')
+
+  const sourceRootConfig = {} // TODO
 
   const queryRoot = createReactiveTreeInner({
     exeContext,
     parentType: liveDataType,
     type: queryFieldDef.type,
     fieldNodes: liveDataFields.query,
-    path,
+    graphqlPath,
     source: { query: source },
+    sourceRootConfig,
   })
 
   return { queryRoot }
