@@ -67,8 +67,9 @@ describe('GraphQLLiveData Integration', () => {
     // inital query
     await subscription.next()
     // null change should not create a response
-    eventEmitter.emit('update', { nextState })
+    // eventEmitter.emit('update', { nextState })
 
+    console.log('FIRST PATCH')
     // first patch
     nextState = nextState
       .mergeIn(['houses', 0], {
@@ -86,31 +87,31 @@ describe('GraphQLLiveData Integration', () => {
     await expectSubscriptionResponse(subscription)
   })
 
-  it('publishes patches on \'update\' with new list entries', async () => {
-    const {
-      subscription,
-      eventEmitter,
-      state,
-    } = await createTestSubscription({})
-    let nextState = state
-    // inital query
-    await subscription.next()
-    // null change should not create a response
-    eventEmitter.emit('update', { nextState })
-
-    // first patch
-    const addedHouse = House({
-      id: "add_that_id",
-      address: "somwhere",
-      postalCode: "10210",
-      numberOfCats: 10,
-      numberOfDogs: 5,
-    })
-    nextState = nextState
-      .updateIn(['houses'], houses => houses.push(addedHouse))
-    eventEmitter.emit('update', { nextState })
-    await expectSubscriptionResponse(subscription)
-  })
+  // it('publishes patches on \'update\' with new list entries', async () => {
+  //   const {
+  //     subscription,
+  //     eventEmitter,
+  //     state,
+  //   } = await createTestSubscription({})
+  //   let nextState = state
+  //   // inital query
+  //   await subscription.next()
+  //   // null change should not create a response
+  //   eventEmitter.emit('update', { nextState })
+  //
+  //   // first patch
+  //   const addedHouse = House({
+  //     id: 'add_that_id',
+  //     address: 'somwhere',
+  //     postalCode: '10210',
+  //     numberOfCats: 10,
+  //     numberOfDogs: 5,
+  //   })
+  //   nextState = nextState
+  //     .updateIn(['houses'], houses => houses.push(addedHouse))
+  //   eventEmitter.emit('update', { nextState })
+  //   await expectSubscriptionResponse(subscription)
+  // })
 
   // it('publishes patches on \'update\' with removed list entries', async () => {
   //   const {

@@ -1,6 +1,7 @@
 import {
   isListType,
   isLeafType,
+  isNonNullType,
   responsePathAsArray,
   defaultFieldResolver,
 } from 'graphql'
@@ -8,10 +9,9 @@ import {
   getFieldDef,
   buildResolveInfo,
   resolveFieldValueOrError,
-  addPath,
 } from 'graphql/execution/execute'
 
-import { createReactiveTreeInner } from './ReactiveTree'
+import updateChildNodes from './updateChildNodes'
 
 export const UNCHANGED = Symbol('UNCHANGED')
 
@@ -21,90 +21,38 @@ export const createNode = ({
   type,
   fieldNodes,
   graphqlPath,
-  children,
   sourceRootConfig,
-  isSourceRoot,
 }) => {
+  const name = fieldNodes[0].name.value
+  const parentRoots = sourceRootConfig[parentType.name]
+
+  const isSourceRoot = (
+    parentType.name && name && parentRoots && parentRoots[name]
+  )
+
   const reactiveNode = {
     isLeaf: isLeafType(type),
     isList: isListType(type),
     isListEntry: isListType(parentType),
-    name: fieldNodes[0].name.value,
+    name,
     // eg. if path is ['live', 'query', 'foo'] then patchPath is '/foo'
     patchPath: `/${responsePathAsArray(graphqlPath).slice(2).join('/')}`,
-    children,
+    children: [],
     value: undefined,
     exeContext,
     parentType,
-    type,
+    type: isNonNullType(type) ? type.ofType : type,
     fieldNodes,
     sourceRootConfig,
     isSourceRoot,
     graphqlPath,
   }
+
+  if (isSourceRoot) {
+    parentRoots[name][reactiveNode.patchPath] = reactiveNode
+  }
+
   return reactiveNode
-}
-
-const removeAllSourceRoots = (reactiveNode, sourceRootConfig) => {
-  if (reactiveNode.isSourceRoot) {
-    // eslint-disable-next-line no-param-reassign
-    delete sourceRootConfig[reactiveNode.parentType.name][reactiveNode.name]
-  }
-  reactiveNode.children.forEach((childNode) => {
-    removeAllSourceRoots(childNode, sourceRootConfig)
-  })
-}
-
-const adjustListSize = (reactiveNode) => {
-  /*
-   * Add or remove nodes and source roots if the list has changed length
-   */
-  const { value, children } = reactiveNode
-
-  const previousLength = children.length
-  const nextLength = (value && (value.length || value.size)) || 0
-
-  const listHasGrown = nextLength > previousLength
-  const listHasShrunk = nextLength < previousLength
-
-  if (listHasGrown) {
-    const {
-      exeContext,
-      fieldNodes,
-      sourceRootConfig,
-      graphqlPath,
-    } = reactiveNode
-
-    let index = 0
-    // eslint-disable-next-line no-restricted-syntax
-    for (const entry of value) {
-      if (index >= previousLength) {
-        const childNode = createReactiveTreeInner({
-          exeContext,
-          parentType: reactiveNode.type,
-          type: reactiveNode.type.ofType,
-          fieldNodes,
-          graphqlPath: addPath(graphqlPath, index),
-          source: entry, // TODO: create a new node without setting it's source
-          sourceRootConfig,
-        })
-        reactiveNode.children.push(childNode)
-      }
-      index += 1
-    }
-
-    console.log('NEW CHILDREN')
-    console.log(reactiveNode.children)
-    console.log('-----')
-  } else if (listHasShrunk) {
-    const removedNodes = reactiveNode.children.splice(nextLength)
-    const { sourceRootConfig } = reactiveNode
-
-    removedNodes.forEach(node => removeAllSourceRoots(node, sourceRootConfig))
-
-    // eslint-disable-next-line no-param-reassign
-    reactiveNode.children = reactiveNode.children.splice(0, nextLength)
-  }
 }
 
 /**
@@ -152,8 +100,7 @@ const resolveField = (reactiveNode, source) => {
     info,
   )
 
-  // console.log('after', fieldNodes[0].name.value, reactiveNode.patchPath, fieldDef.type, fieldDef.resolve ? result : (result && result[fieldName]))
-  // return fieldDef.resolve ? result : (result && result[fieldName])
+  console.log('after', fieldNodes[0].name.value, reactiveNode.patchPath, fieldDef.type, source, result)
   return result
 }
 
@@ -161,9 +108,7 @@ export const setInitialValue = (reactiveNode, source) => {
   // eslint-disable-next-line no-param-reassign
   reactiveNode.value = resolveField(reactiveNode, source)
 
-  if (reactiveNode.isList) {
-    adjustListSize(reactiveNode)
-  }
+  updateChildNodes(reactiveNode)
 
   return reactiveNode.value
 }
@@ -172,14 +117,14 @@ export const getNextValueOrUnchanged = (reactiveNode, source) => {
   const previousValue = reactiveNode.value
   const nextValue = resolveField(reactiveNode, source)
 
+  console.log(reactiveNode.patchPath, nextValue)
+
   if (nextValue === previousValue) return UNCHANGED
 
   // eslint-disable-next-line no-param-reassign
   reactiveNode.value = nextValue
 
-  if (reactiveNode.isList) {
-    adjustListSize(reactiveNode)
-  }
+  // updateChildNodes(reactiveNode)
 
   return nextValue
 }

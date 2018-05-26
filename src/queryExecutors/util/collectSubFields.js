@@ -26,4 +26,5 @@ const collectSubfields = ({
   return subFieldNodes
 }
 
+// TODO:  memoize3 this
 export default collectSubfields
