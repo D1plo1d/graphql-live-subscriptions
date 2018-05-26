@@ -18,13 +18,10 @@ const resolvers = {
   Subscription: {
     live: {
       resolve: source => source,
-      subscribe: () => {
-        const asyncIterator = subscribeToLiveData({
-          initialState: (source, args, context) => context.store.getState(),
-          eventEmitter: (source, args, context) => context.store.eventEmitter,
-        })
-        return asyncIterator
-      },
+      subscribe: subscribeToLiveData({
+        initialState: (source, args, context) => context.store.state,
+        eventEmitter: (source, args, context) => context.store.eventEmitter,
+      }),
     },
   },
   House: {

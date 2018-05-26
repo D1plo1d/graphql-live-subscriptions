@@ -1,47 +1,68 @@
 import EventEmitter from 'events'
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { List, Record } from 'immutable'
 
 /*
- * A simplified data store for our example.
+ * A simple immutableJS data store for our example.
  */
 
-export const initialState = () => ({
-  houses: [
-    {
+const State = Record({
+  houses: List(),
+  jedis: List(),
+})
+
+export const House = Record({
+  id: null,
+  address: null,
+  postalCode: null,
+  numberOfCats: 0,
+  numberOfDogs: null,
+})
+
+export const Jedi = Record({
+  id: null,
+  name: null,
+  houseIDs: List(),
+})
+
+export const initialState = State({
+  houses: List([
+    House({
       id: 'real_street',
       address: '123 real st',
       postalCode: '90210',
       numberOfCats: 5,
       numberOfDogs: 7,
-    },
-    {
+    }),
+    House({
       id: 'legit_road',
       address: '200 legit rd',
       postalCode: '90211',
       numberOfCats: 0,
       numberOfDogs: 1,
-    },
-  ],
-  jedis: [
-    {
+    }),
+  ]),
+  jedis: List([
+    Jedi({
       id: 'jedi_1',
       name: 'Luke Skywalker',
-      houseIDs: ['legit_road'],
-    },
-    {
+      houseIDs: List(['legit_road']),
+    }),
+    Jedi({
       id: 'jedi_2',
       name: 'Yoda',
-      houseIDs: [],
-    },
-    {
+      houseIDs: List(),
+    }),
+    Jedi({
       id: 'jedi_3',
       name: 'Mace Windu',
-      houseIDs: ['legit_road', 'real_street'],
-    },
-  ],
+      houseIDs: List(['legit_road', 'real_street']),
+    }),
+  ]),
 })
 
 const store = () => ({
-  state: initialState(),
+  state: initialState,
   eventEmitter: new EventEmitter(),
   setState: (nextState) => {
     store.state = nextState

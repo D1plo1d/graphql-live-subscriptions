@@ -23,9 +23,12 @@ const createInitialQuery = (reactiveNode) => {
 }
 
 const createPatch = (reactiveNode, source, patch = []) => {
+  // console.log('PATCH')
+  // console.log(reactiveNode)
   const previousValue = reactiveNode.value
   const value = ReactiveNode.getNextValueOrUnchanged(reactiveNode, source)
 
+  console.log(reactiveNode.patchPath, value)
   if (value === ReactiveNode.UNCHANGED) {
     return patch
   }
@@ -38,12 +41,23 @@ const createPatch = (reactiveNode, source, patch = []) => {
     return patch
   }
 
+  if (reactiveNode.isList) {
+    let index = 0
+    // Compatible with any Iterable
+    // eslint-disable-next-line no-restricted-syntax
+    for (const childSource of value) {
+      const childNode = reactiveNode.children[index]
+      createPatch(childNode, childSource, patch)
 
-  reactiveNode.children.forEach((childNode, index) => {
-    const childSource = reactiveNode.isList ? value[index] : value
+      index += 1
+    }
+  } else {
+    reactiveNode.children.forEach((childNode, index) => {
+      const childSource = reactiveNode.isList ? value[index] : value
 
-    const childOps = createPatch(childNode, childSource, patch)
-  })
+      createPatch(childNode, childSource, patch)
+    })
+  }
 
   return patch
 }

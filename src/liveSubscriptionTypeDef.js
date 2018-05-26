@@ -5,7 +5,7 @@ const liveSubscriptionTypeDef = ({
 }) => `
   scalar JSON
 
-  extend Subscription {
+  extend type Subscription {
     ${subscriptionName}: ${type}
   }
 

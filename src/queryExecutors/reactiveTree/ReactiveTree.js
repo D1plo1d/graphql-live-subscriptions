@@ -57,7 +57,7 @@ export const createReactiveTreeInner = (opts) => {
   const resolverResult = ReactiveNode.setInitialValue(reactiveNode, source)
 
   if (isListType(type)) {
-    const resultList = (() => {
+    const resultIterable = (() => {
       if (resolverResult == null) {
         return []
       }
@@ -67,8 +67,12 @@ export const createReactiveTreeInner = (opts) => {
       return [resolverResult]
     })()
 
-    reactiveNode.children = resultList.map((sourceForArrayIndex, index) => (
-      createReactiveTreeInner({
+    reactiveNode.children = []
+    let index = 0
+    // Compatible with any Iterable
+    // eslint-disable-next-line no-restricted-syntax
+    for (const sourceForArrayIndex of resultIterable) {
+      const childNode = createReactiveTreeInner({
         exeContext,
         parentType: type,
         type: type.ofType,
@@ -77,7 +81,9 @@ export const createReactiveTreeInner = (opts) => {
         source: sourceForArrayIndex,
         sourceRootConfig,
       })
-    ))
+      reactiveNode.children.push(childNode)
+      index += 1
+    }
   } else if (isObjectType(type)) {
     const fields = collectSubFields({
       exeContext,

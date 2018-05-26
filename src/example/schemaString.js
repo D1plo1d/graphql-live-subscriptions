@@ -1,13 +1,21 @@
 import { liveSubscriptionTypeDef } from '../index'
 
-const liveData = liveSubscriptionTypeDef({
+const liveSubscription = liveSubscriptionTypeDef({
   queryType: 'LiveQueryRoot',
 })
 
 const schemaString = `
+  type Subscription
+
   type LiveQueryRoot {
     houses: [House!]!
     jedis: [Jedi!]!
+  }
+
+  type Query {
+    houses: [House!]!
+    jedis: [Jedi!]!
+    someNonLiveField: String!
   }
 
   type House {
@@ -26,5 +34,5 @@ const schemaString = `
 
 export default [
   schemaString,
-  liveData,
+  liveSubscription,
 ]

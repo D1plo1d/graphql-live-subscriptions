@@ -2,12 +2,12 @@
 
 exports[`GraphQLLiveData Integration publishes patches on 'update' 1`] = `
 Object {
-  "houses": Object {
+  "live": Object {
     "patch": Array [
       Object {
         "from": null,
         "op": "replace",
-        "path": "/0/numberOfCats",
+        "path": "/houses/0/numberOfCats",
         "value": 200,
       },
     ],
@@ -18,18 +18,56 @@ Object {
 
 exports[`GraphQLLiveData Integration publishes patches on 'update' 2`] = `
 Object {
-  "houses": Object {
+  "live": Object {
     "patch": Array [
       Object {
         "from": null,
         "op": "replace",
-        "path": "/0/address",
+        "path": "/houses/0/address",
         "value": "123 real st apt. 1",
       },
       Object {
         "from": null,
         "op": "replace",
-        "path": "/1/address",
+        "path": "/houses/1/address",
+        "value": "200 legit rd apt. 2",
+      },
+    ],
+    "query": null,
+  },
+}
+`;
+
+exports[`GraphQLLiveData Integration publishes patches on 'update' with new list entries 1`] = `
+Object {
+  "live": Object {
+    "patch": Array [
+      Object {
+        "from": null,
+        "op": "replace",
+        "path": "/houses/0/numberOfCats",
+        "value": 200,
+      },
+    ],
+    "query": null,
+  },
+}
+`;
+
+exports[`GraphQLLiveData Integration publishes patches on 'update' with new list entries 2`] = `
+Object {
+  "live": Object {
+    "patch": Array [
+      Object {
+        "from": null,
+        "op": "replace",
+        "path": "/houses/0/address",
+        "value": "123 real st apt. 1",
+      },
+      Object {
+        "from": null,
+        "op": "replace",
+        "path": "/houses/1/address",
         "value": "200 legit rd apt. 2",
       },
     ],
@@ -40,20 +78,22 @@ Object {
 
 exports[`GraphQLLiveData Integration publishes the initialQuery immediately 1`] = `
 Object {
-  "houses": Object {
+  "live": Object {
     "patch": null,
-    "query": Array [
-      Object {
-        "address": "123 real st",
-        "id": "real_street",
-        "numberOfCats": 5,
-      },
-      Object {
-        "address": "200 legit rd",
-        "id": "legit_road",
-        "numberOfCats": 0,
-      },
-    ],
+    "query": Object {
+      "houses": Array [
+        Object {
+          "address": "123 real st",
+          "id": "real_street",
+          "numberOfCats": 5,
+        },
+        Object {
+          "address": "200 legit rd",
+          "id": "legit_road",
+          "numberOfCats": 0,
+        },
+      ],
+    },
   },
 }
 `;

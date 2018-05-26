@@ -24,9 +24,9 @@ const subscribeToLiveData = ({
   const connectionPubSub = new PubSub()
   const asyncIterator = connectionPubSub.asyncIterator(eventName)
 
-  if (type == null) {
-    throw new Error('subscribeToLiveData \'type\' argument is required')
-  }
+  // if (type == null) {
+  //   throw new Error('subscribeToLiveData \'type\' argument is required')
+  // }
 
   let eventEmitter = getEventEmitter(
     source,
@@ -39,9 +39,10 @@ const subscribeToLiveData = ({
     eventEmitter = await eventEmitter
   }
   if (eventEmitter == null || eventEmitter.on == null) {
-    throw new Error(
+    const msg = (
       'eventEmitter must either return a Promise or an instance of EventEmitter'
     )
+    throw new Error(msg)
   }
 
   let initialState = getInitialState(
@@ -95,6 +96,8 @@ const subscribeToLiveData = ({
   }
 
   const publishPatch = (patch) => {
+    console.log('PUBLISH')
+    console.log(patch)
     if (patch != null && patch.length > 0) {
       connectionPubSub.publish(eventName, { patch })
     }

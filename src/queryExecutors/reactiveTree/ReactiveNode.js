@@ -2,6 +2,7 @@ import {
   isListType,
   isLeafType,
   responsePathAsArray,
+  defaultFieldResolver,
 } from 'graphql'
 import {
   getFieldDef,
@@ -54,6 +55,58 @@ const removeAllSourceRoots = (reactiveNode, sourceRootConfig) => {
   })
 }
 
+const adjustListSize = (reactiveNode) => {
+  /*
+   * Add or remove nodes and source roots if the list has changed length
+   */
+  const { value, children } = reactiveNode
+
+  const previousLength = children.length
+  const nextLength = (value && (value.length || value.size)) || 0
+
+  const listHasGrown = nextLength > previousLength
+  const listHasShrunk = nextLength < previousLength
+
+  if (listHasGrown) {
+    const {
+      exeContext,
+      fieldNodes,
+      sourceRootConfig,
+      graphqlPath,
+    } = reactiveNode
+
+    let index = 0
+    // eslint-disable-next-line no-restricted-syntax
+    for (const entry of value) {
+      if (index >= previousLength) {
+        const childNode = createReactiveTreeInner({
+          exeContext,
+          parentType: reactiveNode.type,
+          type: reactiveNode.type.ofType,
+          fieldNodes,
+          graphqlPath: addPath(graphqlPath, index),
+          source: entry, // TODO: create a new node without setting it's source
+          sourceRootConfig,
+        })
+        reactiveNode.children.push(childNode)
+      }
+      index += 1
+    }
+
+    console.log('NEW CHILDREN')
+    console.log(reactiveNode.children)
+    console.log('-----')
+  } else if (listHasShrunk) {
+    const removedNodes = reactiveNode.children.splice(nextLength)
+    const { sourceRootConfig } = reactiveNode
+
+    removedNodes.forEach(node => removeAllSourceRoots(node, sourceRootConfig))
+
+    // eslint-disable-next-line no-param-reassign
+    reactiveNode.children = reactiveNode.children.splice(0, nextLength)
+  }
+}
+
 /**
  * Resolves the field on the given source object. In particular, this
  * figures out the value that the field returns by calling its resolve function,
@@ -70,6 +123,7 @@ const resolveField = (reactiveNode, source) => {
 
   const fieldName = fieldNodes[0].name.value
 
+  // console.log('before', reactiveNode.patchPath, fieldNodes[0].name.value, source)
   if (reactiveNode.isListEntry) return source
 
   const fieldDef = getFieldDef(exeContext.schema, parentType, fieldName)
@@ -77,7 +131,7 @@ const resolveField = (reactiveNode, source) => {
     return null
   }
 
-  const resolveFn = fieldDef.resolve || exeContext.fieldResolver
+  const resolveFn = fieldDef.resolve || defaultFieldResolver
 
   const info = buildResolveInfo(
     exeContext,
@@ -98,12 +152,19 @@ const resolveField = (reactiveNode, source) => {
     info,
   )
 
-  return result[fieldName]
+  // console.log('after', fieldNodes[0].name.value, reactiveNode.patchPath, fieldDef.type, fieldDef.resolve ? result : (result && result[fieldName]))
+  // return fieldDef.resolve ? result : (result && result[fieldName])
+  return result
 }
 
 export const setInitialValue = (reactiveNode, source) => {
   // eslint-disable-next-line no-param-reassign
   reactiveNode.value = resolveField(reactiveNode, source)
+
+  if (reactiveNode.isList) {
+    adjustListSize(reactiveNode)
+  }
+
   return reactiveNode.value
 }
 
@@ -113,51 +174,12 @@ export const getNextValueOrUnchanged = (reactiveNode, source) => {
 
   if (nextValue === previousValue) return UNCHANGED
 
-  if (reactiveNode.isList) {
-    /*
-     * Add or remove nodes and source roots if the list has changed length
-     */
-    const lengthOf = val => (val && val.length) || 0
-    const listHasGrown = lengthOf(nextValue) > lengthOf(previousValue)
-    const listHasShrunk = lengthOf(nextValue) < lengthOf(previousValue)
-
-    if (listHasGrown) {
-      const {
-        exeContext,
-        fieldNodes,
-        sourceRootConfig,
-        graphqlPath,
-      } = reactiveNode
-      const previousLength = lengthOf(previousValue)
-      const addedEntries = nextValue.splice(previousLength)
-
-      const newChildNodes = addedEntries.map((entry, index) => (
-        createReactiveTreeInner({
-          exeContext,
-          parentType: reactiveNode.type,
-          type: reactiveNode.type.ofType,
-          fieldNodes,
-          graphqlPath: addPath(graphqlPath, previousLength + index),
-          source,
-          sourceRootConfig,
-        })
-      ))
-
-      reactiveNode.children.push(newChildNodes)
-    } else if (listHasShrunk) {
-      const nextLength = lengthOf(nextValue)
-      const removedNodes = reactiveNode.children.splice(nextLength)
-      const { sourceRootConfig } = reactiveNode
-
-      removedNodes.forEach(node => removeAllSourceRoots(node, sourceRootConfig))
-
-      // eslint-disable-next-line no-param-reassign
-      reactiveNode.children = reactiveNode.children.splice(0, nextLength)
-    }
-  }
-
   // eslint-disable-next-line no-param-reassign
   reactiveNode.value = nextValue
+
+  if (reactiveNode.isList) {
+    adjustListSize(reactiveNode)
+  }
 
   return nextValue
 }
