@@ -36,7 +36,7 @@ const updateChildNodes = (reactiveNode) => {
       fieldNodes,
     })
 
-    if (fields.length === children.length) return
+    if (Object.keys(fields).length === children.length) return
 
     /*
      * TODO: recurse down the query to find all fields that have explicitly
@@ -75,6 +75,11 @@ const updateChildNodes = (reactiveNode) => {
     const previousLength = children.length
     const nextLength = value.length || value.size
 
+    // console.log('NEW CHILDREN', previousLength, nextLength)
+    // console.log(reactiveNode)
+    // console.log(reactiveNode.children)
+    // console.log('-----')
+
     const listHasGrown = nextLength > previousLength
     const listHasShrunk = nextLength < previousLength
 
@@ -96,12 +101,9 @@ const updateChildNodes = (reactiveNode) => {
         }
         index += 1
       }
-
-      console.log('NEW CHILDREN')
-      console.log(reactiveNode.children)
-      console.log('-----')
     } else if (listHasShrunk) {
       const removedNodes = reactiveNode.children.splice(nextLength)
+      console.log('SHRUNK', reactiveNode.patchPath, removedNodes)
 
       removedNodes.forEach((node) => {
         removeAllSourceRoots(node, sourceRootConfig)
@@ -109,6 +111,8 @@ const updateChildNodes = (reactiveNode) => {
 
       // eslint-disable-next-line no-param-reassign
       reactiveNode.children = reactiveNode.children.splice(0, nextLength)
+      // eslint-disable-next-line no-param-reassign
+      reactiveNode.removedNodes = removedNodes
     }
   } else if (
     !isLeafType(type)

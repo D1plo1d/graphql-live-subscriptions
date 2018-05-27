@@ -96,8 +96,6 @@ const subscribeToLiveData = ({
   }
 
   const publishPatch = (patch) => {
-    console.log('PUBLISH')
-    console.log(patch)
     if (patch != null && patch.length > 0) {
       connectionPubSub.publish(eventName, { patch })
     }

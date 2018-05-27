@@ -12,6 +12,13 @@ const integrationTestQuery = `
           address(includePostalCode: false)
         }
 
+        jedis {
+          id
+          name
+          houses {
+            address(includePostalCode: true)
+          }
+        }
       }
 
       patch { op, path, from, value }
@@ -26,13 +33,5 @@ const integrationTestQuery = `
     }
   }
 `
-
-// jedis {
-//   id
-//   name
-//   houses {
-//     address(includePostalCode: true)
-//   }
-// }
 
 export default integrationTestQuery

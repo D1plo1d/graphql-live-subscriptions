@@ -4,10 +4,7 @@ import {
 } from 'graphql'
 
 import schema from './example'
-import {
-  default as createStore,
-  House,
-} from './example/store'
+import createStore, { House } from './example/store'
 import integrationTestQuery from './integrationTestQuery'
 
 // const externallyGeneratedPatch = [
@@ -87,50 +84,46 @@ describe('GraphQLLiveData Integration', () => {
     await expectSubscriptionResponse(subscription)
   })
 
-  // it('publishes patches on \'update\' with new list entries', async () => {
-  //   const {
-  //     subscription,
-  //     eventEmitter,
-  //     state,
-  //   } = await createTestSubscription({})
-  //   let nextState = state
-  //   // inital query
-  //   await subscription.next()
-  //   // null change should not create a response
-  //   eventEmitter.emit('update', { nextState })
-  //
-  //   // first patch
-  //   const addedHouse = House({
-  //     id: 'add_that_id',
-  //     address: 'somwhere',
-  //     postalCode: '10210',
-  //     numberOfCats: 10,
-  //     numberOfDogs: 5,
-  //   })
-  //   nextState = nextState
-  //     .updateIn(['houses'], houses => houses.push(addedHouse))
-  //   eventEmitter.emit('update', { nextState })
-  //   await expectSubscriptionResponse(subscription)
-  // })
+  it('publishes patches on \'update\' with new list entries', async () => {
+    const {
+      subscription,
+      eventEmitter,
+      state,
+    } = await createTestSubscription({})
+    let nextState = state
+    // inital query
+    await subscription.next()
 
-  // it('publishes patches on \'update\' with removed list entries', async () => {
-  //   const {
-  //     subscription,
-  //     eventEmitter,
-  //     state,
-  //   } = await createTestSubscription({})
-  //   let nextState = state
-  //   // inital query
-  //   await subscription.next()
-  //   // null change should not create a response
-  //   eventEmitter.emit('update', { nextState })
-  //
-  //   // first patch
-  //   nextState = nextState
-  //     .updateIn(['jedis'], jedis => jedis.pop())
-  //   eventEmitter.emit('update', { nextState })
-  //   await expectSubscriptionResponse(subscription)
-  // })
+    // first patch
+    const addedHouse = House({
+      id: 'add_that_id',
+      address: 'somwhere',
+      postalCode: '10210',
+      numberOfCats: 10,
+      numberOfDogs: 5,
+    })
+    nextState = nextState
+      .updateIn(['houses'], houses => houses.push(addedHouse))
+    eventEmitter.emit('update', { nextState })
+    await expectSubscriptionResponse(subscription)
+  })
+
+  it('publishes patches on \'update\' with removed list entries', async () => {
+    const {
+      subscription,
+      eventEmitter,
+      state,
+    } = await createTestSubscription({})
+    let nextState = state
+    // inital query
+    await subscription.next()
+
+    // first patch
+    nextState = nextState
+      .updateIn(['jedis'], jedis => jedis.pop())
+    eventEmitter.emit('update', { nextState })
+    await expectSubscriptionResponse(subscription)
+  })
 
   // it('publishes a patch on \'patch\'', async () => {
   //   const {

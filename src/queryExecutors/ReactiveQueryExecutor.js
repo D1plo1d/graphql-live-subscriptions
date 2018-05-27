@@ -11,7 +11,7 @@ import iterableValue from './reactiveTree/iterableValue'
 
 const createInitialQuery = (reactiveNode, source) => {
   ReactiveNode.setInitialValue(reactiveNode, source)
-  console.log('INITAIL QUERY', reactiveNode.name, reactiveNode.value, 'source', source)
+  // console.log('INITAIL QUERY', reactiveNode.name, reactiveNode.value, 'source', source)
 
   const {
     children,
@@ -34,15 +34,15 @@ const createInitialQuery = (reactiveNode, source) => {
   }
 
   const json = {}
-  console.log('children???', reactiveNode.children)
+  // console.log('children???', reactiveNode.children)
   reactiveNode.children.forEach((childNode) => {
     const childSource = reactiveNode.value
-    console.log('uhhh', childNode.name, childSource)
+    // console.log('uhhh', childNode.name, childSource)
     const childJSON = createInitialQuery(childNode, childSource)
     // TODO: this is the field name. Should be the alias name
     json[childNode.name] = childJSON
   })
-  console.log('json for', reactiveNode.type, json)
+  console.log('initial json for', reactiveNode.type, json)
   return json
 }
 
@@ -50,9 +50,31 @@ const createPatch = (reactiveNode, source, patch = []) => {
   // console.log('PATCH')
   // console.log(reactiveNode)
   const previousValue = reactiveNode.value
+
   const value = ReactiveNode.getNextValueOrUnchanged(reactiveNode, source)
 
-  console.log(reactiveNode.patchPath, value)
+  const { removedNodes } = reactiveNode
+  if (removedNodes.length > 0) {
+    removedNodes.forEach((removedNode) => {
+      patch.push({
+        op: 'remove',
+        path: removedNode.patchPath,
+      })
+    })
+
+    reactiveNode.removedNodes = []
+  }
+
+  if (!reactiveNode.initializedValue) {
+    patch.push({
+      op: 'replace',
+      path: reactiveNode.patchPath,
+      value: createInitialQuery(reactiveNode, source),
+    })
+    return patch
+  }
+
+  // console.log('patch', reactiveNode.patchPath, 'previous', previousValue, 'next', value)
   if (value === ReactiveNode.UNCHANGED) {
     return patch
   }
@@ -76,12 +98,14 @@ const createPatch = (reactiveNode, source, patch = []) => {
       index += 1
     }
   } else {
+    // console.log('kids these days', reactiveNode.children)
     reactiveNode.children.forEach((childNode) => {
       const childSource = value
       createPatch(childNode, childSource, patch)
     })
   }
 
+  console.log('patch', patch)
   return patch
 }
 

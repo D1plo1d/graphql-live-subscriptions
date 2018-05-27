@@ -31,6 +31,8 @@ export const createNode = ({
   )
 
   const reactiveNode = {
+    initializedValue: false,
+    removedNodes: [],
     isLeaf: isLeafType(type),
     isList: isListType(type),
     isListEntry: isListType(parentType),
@@ -100,11 +102,13 @@ const resolveField = (reactiveNode, source) => {
     info,
   )
 
-  console.log('after', fieldNodes[0].name.value, reactiveNode.patchPath, fieldDef.type, source, result)
+  // console.log('after', fieldNodes[0].name.value, reactiveNode.patchPath, fieldDef.type, source, result)
   return result
 }
 
 export const setInitialValue = (reactiveNode, source) => {
+  // eslint-disable-next-line no-param-reassign
+  reactiveNode.initializedValue = true
   // eslint-disable-next-line no-param-reassign
   reactiveNode.value = resolveField(reactiveNode, source)
 
@@ -117,14 +121,14 @@ export const getNextValueOrUnchanged = (reactiveNode, source) => {
   const previousValue = reactiveNode.value
   const nextValue = resolveField(reactiveNode, source)
 
-  console.log(reactiveNode.patchPath, nextValue)
+  // console.log(reactiveNode.patchPath, nextValue)
 
   if (nextValue === previousValue) return UNCHANGED
 
   // eslint-disable-next-line no-param-reassign
   reactiveNode.value = nextValue
 
-  // updateChildNodes(reactiveNode)
+  updateChildNodes(reactiveNode)
 
   return nextValue
 }

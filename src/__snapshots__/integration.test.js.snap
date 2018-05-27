@@ -45,8 +45,12 @@ Object {
       Object {
         "from": null,
         "op": "replace",
-        "path": "/houses/0/numberOfCats",
-        "value": 200,
+        "path": "/houses/2",
+        "value": Object {
+          "address": "somwhere",
+          "id": "add_that_id",
+          "numberOfCats": 10,
+        },
       },
     ],
     "query": null,
@@ -54,21 +58,15 @@ Object {
 }
 `;
 
-exports[`GraphQLLiveData Integration publishes patches on 'update' with new list entries 2`] = `
+exports[`GraphQLLiveData Integration publishes patches on 'update' with removed list entries 1`] = `
 Object {
   "live": Object {
     "patch": Array [
       Object {
         "from": null,
-        "op": "replace",
-        "path": "/houses/0/address",
-        "value": "123 real st apt. 1",
-      },
-      Object {
-        "from": null,
-        "op": "replace",
-        "path": "/houses/1/address",
-        "value": "200 legit rd apt. 2",
+        "op": "remove",
+        "path": "/jedis/2",
+        "value": null,
       },
     ],
     "query": null,
@@ -80,20 +78,7 @@ exports[`GraphQLLiveData Integration publishes the initialQuery immediately 1`] 
 Object {
   "live": Object {
     "patch": null,
-    "query": Object {
-      "houses": Array [
-        Object {
-          "address": "123 real st",
-          "id": "real_street",
-          "numberOfCats": 5,
-        },
-        Object {
-          "address": "200 legit rd",
-          "id": "legit_road",
-          "numberOfCats": 0,
-        },
-      ],
-    },
+    "query": "TODO",
   },
 }
 `;
