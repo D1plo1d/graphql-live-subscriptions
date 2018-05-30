@@ -76,6 +76,12 @@ const subscribeToLiveData = ({
     }
   })()
 
+  const publishPatch = (patch) => {
+    console.log('publish PATCH', patch)
+    if (patch != null && patch.length > 0) {
+      connectionPubSub.publish(eventName, { patch })
+    }
+  }
 
   const publishInitialQuery = async () => {
     /*
@@ -92,13 +98,14 @@ const subscribeToLiveData = ({
      * the source is used to generate the initial state and to publish a `query`
      * result to the client.
      */
+    console.log('INITIAL', resolveInfo.fieldNodes[0].name.value, resolveInfo.fieldNodes[0].selectionSet.selections.map(f => f.name.value))
     connectionPubSub.publish(eventName, { query: initialState })
-  }
-
-  const publishPatch = (patch) => {
-    if (patch != null && patch.length > 0) {
-      connectionPubSub.publish(eventName, { patch })
-    }
+    // connectionPubSub.publish(eventName, { patch: [ { op: 'replace', value: 'test' } ], query: { houses: ['test'] } })
+    // publishPatch([{
+    //   op: 'replace',
+    //   value: '123 real st apt. 1',
+    //   path: '/houses/0/address',
+    // }])
   }
 
   const onUpdate = async ({ nextState }) => {

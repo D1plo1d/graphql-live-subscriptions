@@ -32,6 +32,15 @@ const resolvers = {
       return house.address
     },
   },
+  Jedi: {
+    houses: (jedi, args, context) => {
+      const { state } = context.store
+
+      return jedi.houseIDs.map(id => (
+        state.houses.find(house => house.id === id)
+      ))
+    },
+  },
 }
 
 const schema = makeExecutableSchema({

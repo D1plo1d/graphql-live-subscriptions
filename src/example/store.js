@@ -26,6 +26,7 @@ export const Jedi = Record({
 })
 
 export const initialState = State({
+  // GraphQL List generated from Immutable List
   houses: List([
     House({
       id: 'real_street',
@@ -42,7 +43,8 @@ export const initialState = State({
       numberOfDogs: 1,
     }),
   ]),
-  jedis: List([
+  // GraphQL List generated from Array
+  jedis: [
     Jedi({
       id: 'jedi_1',
       name: 'Luke Skywalker',
@@ -58,7 +60,7 @@ export const initialState = State({
       name: 'Mace Windu',
       houseIDs: List(['legit_road', 'real_street']),
     }),
-  ]),
+  ],
 })
 
 const store = () => ({

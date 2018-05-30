@@ -58,27 +58,52 @@ Object {
 }
 `;
 
-exports[`GraphQLLiveData Integration publishes patches on 'update' with removed list entries 1`] = `
-Object {
-  "live": Object {
-    "patch": Array [
-      Object {
-        "from": null,
-        "op": "remove",
-        "path": "/jedis/2",
-        "value": null,
-      },
-    ],
-    "query": null,
-  },
-}
-`;
-
 exports[`GraphQLLiveData Integration publishes the initialQuery immediately 1`] = `
 Object {
   "live": Object {
     "patch": null,
-    "query": "TODO",
+    "query": Object {
+      "houses": Array [
+        Object {
+          "address": "123 real st",
+          "id": "real_street",
+          "numberOfCats": 5,
+        },
+        Object {
+          "address": "200 legit rd",
+          "id": "legit_road",
+          "numberOfCats": 0,
+        },
+      ],
+      "jedis": Array [
+        Object {
+          "houses": Array [
+            Object {
+              "address": "200 legit rd 90211",
+            },
+          ],
+          "id": "jedi_1",
+          "name": "Luke Skywalker",
+        },
+        Object {
+          "houses": Array [],
+          "id": "jedi_2",
+          "name": "Yoda",
+        },
+        Object {
+          "houses": Array [
+            Object {
+              "address": "200 legit rd 90211",
+            },
+            Object {
+              "address": "123 real st 90210",
+            },
+          ],
+          "id": "jedi_3",
+          "name": "Mace Windu",
+        },
+      ],
+    },
   },
 }
 `;
