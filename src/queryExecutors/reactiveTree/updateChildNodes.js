@@ -103,7 +103,7 @@ const updateChildNodes = (reactiveNode) => {
       }
     } else if (listHasShrunk) {
       const removedNodes = reactiveNode.children.splice(nextLength)
-      console.log('SHRUNK', reactiveNode.patchPath, removedNodes)
+      // console.log('SHRUNK', reactiveNode.patchPath, removedNodes)
 
       removedNodes.forEach((node) => {
         removeAllSourceRoots(node, sourceRootConfig)
