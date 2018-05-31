@@ -44,7 +44,7 @@ Object {
     "patch": Array [
       Object {
         "from": null,
-        "op": "replace",
+        "op": "add",
         "path": "/houses/2",
         "value": Object {
           "address": "somwhere",

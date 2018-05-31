@@ -67,7 +67,7 @@ const createPatch = (reactiveNode, source, patch = []) => {
 
   if (!reactiveNode.initializedValue) {
     patch.push({
-      op: 'replace',
+      op: 'add',
       path: reactiveNode.patchPath,
       value: createInitialQuery(reactiveNode, source),
     })
