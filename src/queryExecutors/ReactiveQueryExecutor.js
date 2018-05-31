@@ -42,7 +42,7 @@ const createInitialQuery = (reactiveNode, source) => {
     // TODO: this is the field name. Should be the alias name
     json[childNode.name] = childJSON
   })
-  console.log('initial json for', reactiveNode.type, json)
+  // console.log('initial json for', reactiveNode.type, json)
   return json
 }
 
