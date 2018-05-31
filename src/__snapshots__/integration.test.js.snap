@@ -123,3 +123,32 @@ Object {
   },
 }
 `;
+
+exports[`GraphQLLiveData Integration with an empty array publishes the initialQuery immediately 1`] = `
+Object {
+  "live": Object {
+    "patch": null,
+    "query": "TODO",
+  },
+}
+`;
+
+exports[`GraphQLLiveData Integration with an empty list publishes patches on 'update' 1`] = `
+Object {
+  "live": Object {
+    "patch": Array [
+      "TODO"
+    ],
+    "query": null,
+  },
+}
+`;
+
+exports[`GraphQLLiveData Integration with an empty list publishes the initialQuery immediately 1`] = `
+Object {
+  "live": Object {
+    "patch": null,
+    "query": "TODO",
+  },
+}
+`;

@@ -2,9 +2,10 @@ import {
   parse,
   subscribe,
 } from 'graphql'
+import { List } from 'immutable'
 
 import schema from './example'
-import createStore, { House } from './example/store'
+import createStore, { House, initialState } from './example/store'
 import integrationTestQuery from './integrationTestQuery'
 
 // const externallyGeneratedPatch = [
@@ -15,9 +16,11 @@ import integrationTestQuery from './integrationTestQuery'
 //   }
 // ]
 
-const createTestSubscription = async () => {
+const createTestSubscription = async ({ state }) => {
   const document = parse(integrationTestQuery)
   const store = createStore()
+
+  if (state != null) store.state = state
 
   let subscription = subscribe({
     schema,
@@ -54,6 +57,54 @@ describe('GraphQLLiveData Integration', () => {
     await expectSubscriptionResponse(subscription)
   })
 
+  describe('with an empty list', () => {
+    it('publishes the initialQuery immediately', async () => {
+      const { subscription } = await createTestSubscription({
+        state: initialState.set('houses', List()),
+      })
+
+      await expectSubscriptionResponse(subscription)
+    })
+
+    it('publishes patches on \'update\'', async () => {
+      const {
+        subscription,
+        eventEmitter,
+        state,
+      } = await createTestSubscription({
+        state: initialState.set('houses', []),
+      })
+
+      let nextState = state
+      // inital query
+      await subscription.next()
+
+      console.log('FIRST PATCH')
+      // first patch
+      nextState = nextState
+        .updateIn(['jedis'], (jedis) => {
+          // eslint-disable-next-line
+          jedis[0] = {
+            ...jedis[0],
+            id: 'a_different_id',
+          }
+          return [...jedis]
+        })
+      eventEmitter.emit('update', { nextState })
+      await expectSubscriptionResponse(subscription)
+    })
+  })
+
+  describe('with an empty array', () => {
+    it('publishes the initialQuery immediately', async () => {
+      const { subscription } = await createTestSubscription({
+        state: initialState.set('houses', []),
+      })
+
+      await expectSubscriptionResponse(subscription)
+    })
+  })
+
   it('publishes patches on \'update\'', async () => {
     const {
       subscription,
@@ -64,7 +115,7 @@ describe('GraphQLLiveData Integration', () => {
     // inital query
     await subscription.next()
     // null change should not create a response
-    // eventEmitter.emit('update', { nextState })
+    eventEmitter.emit('update', { nextState })
 
     console.log('FIRST PATCH')
     // first patch
