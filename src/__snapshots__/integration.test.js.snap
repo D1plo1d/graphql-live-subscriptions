@@ -124,31 +124,90 @@ Object {
 }
 `;
 
-exports[`GraphQLLiveData Integration with an empty array publishes the initialQuery immediately 1`] = `
-Object {
-  "live": Object {
-    "patch": null,
-    "query": "TODO",
-  },
-}
-`;
-
-exports[`GraphQLLiveData Integration with an empty list publishes patches on 'update' 1`] = `
+exports[`GraphQLLiveData Integration with an empty Array publishes patches on 'update' 1`] = `
 Object {
   "live": Object {
     "patch": Array [
-      "TODO"
+      Object {
+        "from": null,
+        "op": "replace",
+        "path": "/jedis/0/id",
+        "value": "a_different_id",
+      },
     ],
     "query": null,
   },
 }
 `;
 
-exports[`GraphQLLiveData Integration with an empty list publishes the initialQuery immediately 1`] = `
+exports[`GraphQLLiveData Integration with an empty Array publishes the initialQuery immediately 1`] = `
 Object {
   "live": Object {
     "patch": null,
-    "query": "TODO",
+    "query": Object {
+      "houses": Array [],
+      "jedis": Array [
+        Object {
+          "houses": Array [],
+          "id": "jedi_1",
+          "name": "Luke Skywalker",
+        },
+        Object {
+          "houses": Array [],
+          "id": "jedi_2",
+          "name": "Yoda",
+        },
+        Object {
+          "houses": Array [],
+          "id": "jedi_3",
+          "name": "Mace Windu",
+        },
+      ],
+    },
+  },
+}
+`;
+
+exports[`GraphQLLiveData Integration with an empty Immutable List publishes patches on 'update' 1`] = `
+Object {
+  "live": Object {
+    "patch": Array [
+      Object {
+        "from": null,
+        "op": "replace",
+        "path": "/jedis/0/id",
+        "value": "a_different_id",
+      },
+    ],
+    "query": null,
+  },
+}
+`;
+
+exports[`GraphQLLiveData Integration with an empty Immutable List publishes the initialQuery immediately 1`] = `
+Object {
+  "live": Object {
+    "patch": null,
+    "query": Object {
+      "houses": Array [],
+      "jedis": Array [
+        Object {
+          "houses": Array [],
+          "id": "jedi_1",
+          "name": "Luke Skywalker",
+        },
+        Object {
+          "houses": Array [],
+          "id": "jedi_2",
+          "name": "Yoda",
+        },
+        Object {
+          "houses": Array [],
+          "id": "jedi_3",
+          "name": "Mace Windu",
+        },
+      ],
+    },
   },
 }
 `;

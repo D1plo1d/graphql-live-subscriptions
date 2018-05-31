@@ -57,53 +57,48 @@ describe('GraphQLLiveData Integration', () => {
     await expectSubscriptionResponse(subscription)
   })
 
-  describe('with an empty list', () => {
-    it('publishes the initialQuery immediately', async () => {
-      const { subscription } = await createTestSubscription({
-        state: initialState.set('houses', List()),
-      })
+  const testEmptyIterable = (iterableType, emptyIterable) => {
+    const emptyState = initialState
+      .set('houses', emptyIterable)
+      .updateIn(['jedis'], jedis => (
+        jedis.map(jedi => jedi.set('houseIDs', List()))
+      ))
 
-      await expectSubscriptionResponse(subscription)
-    })
-
-    it('publishes patches on \'update\'', async () => {
-      const {
-        subscription,
-        eventEmitter,
-        state,
-      } = await createTestSubscription({
-        state: initialState.set('houses', []),
-      })
-
-      let nextState = state
-      // inital query
-      await subscription.next()
-
-      console.log('FIRST PATCH')
-      // first patch
-      nextState = nextState
-        .updateIn(['jedis'], (jedis) => {
-          // eslint-disable-next-line
-          jedis[0] = {
-            ...jedis[0],
-            id: 'a_different_id',
-          }
-          return [...jedis]
+    describe(`with an empty ${iterableType}`, () => {
+      it('publishes the initialQuery immediately', async () => {
+        const { subscription } = await createTestSubscription({
+          state: emptyState,
         })
-      eventEmitter.emit('update', { nextState })
-      await expectSubscriptionResponse(subscription)
-    })
-  })
 
-  describe('with an empty array', () => {
-    it('publishes the initialQuery immediately', async () => {
-      const { subscription } = await createTestSubscription({
-        state: initialState.set('houses', []),
+        await expectSubscriptionResponse(subscription)
       })
 
-      await expectSubscriptionResponse(subscription)
+      it('publishes patches on \'update\'', async () => {
+        const {
+          subscription,
+          eventEmitter,
+          state,
+        } = await createTestSubscription({
+          state: emptyState,
+        })
+        let nextState = state
+        // inital query
+        await subscription.next()
+        // first patch
+        nextState = nextState
+          .updateIn(['jedis'], (jedis) => {
+            // eslint-disable-next-line
+            jedis[0] = jedis[0].set('id', 'a_different_id')
+            return [...jedis]
+          })
+        eventEmitter.emit('update', { nextState })
+        await expectSubscriptionResponse(subscription)
+      })
     })
-  })
+  }
+
+  testEmptyIterable('Immutable List', List())
+  testEmptyIterable('Array', [])
 
   it('publishes patches on \'update\'', async () => {
     const {
