@@ -105,7 +105,7 @@ const createPatch = (reactiveNode, source, patch = []) => {
     })
   }
 
-  console.log('patch', patch)
+  // console.log('patch', patch)
   return patch
 }
 
