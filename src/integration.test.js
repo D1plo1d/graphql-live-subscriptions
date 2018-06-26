@@ -112,7 +112,6 @@ describe('GraphQLLiveData Integration', () => {
     // null change should not create a response
     eventEmitter.emit('update', { nextState })
 
-    console.log('FIRST PATCH')
     // first patch
     nextState = nextState
       .mergeIn(['houses', 0], {

@@ -15,6 +15,7 @@ import collectSubFields from '../util/collectSubFields'
 import { createNode } from './ReactiveNode'
 import removeAllSourceRoots from './removeAllSourceRoots'
 import iterableValue from './iterableValue'
+import iterableLength from '../util/iterableLength'
 
 
 const updateChildNodes = (reactiveNode) => {
@@ -73,7 +74,7 @@ const updateChildNodes = (reactiveNode) => {
     const value = iterableValue(reactiveNode)
 
     const previousLength = children.length
-    const nextLength = value.length || value.size
+    const nextLength = iterableLength(value)
 
     // console.log('NEW CHILDREN', previousLength, nextLength)
     // console.log(reactiveNode)

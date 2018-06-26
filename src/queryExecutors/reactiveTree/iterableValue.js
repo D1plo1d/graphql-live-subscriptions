@@ -3,7 +3,7 @@ const iterableValue = (reactiveNode) => {
 
   if (value == null) return []
 
-  const isIterable = value.length != null || value[Symbol.iterator] != null
+  const isIterable = value[Symbol.iterator] != null
   return isIterable ? value : [value]
 }
 
