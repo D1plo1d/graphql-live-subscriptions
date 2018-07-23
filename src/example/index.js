@@ -21,6 +21,9 @@ const resolvers = {
       subscribe: subscribeToLiveData({
         initialState: (source, args, context) => context.store.state,
         eventEmitter: (source, args, context) => context.store.eventEmitter,
+        sourceRoots: {
+          Jedi: ['houses'],
+        },
       }),
     },
   },

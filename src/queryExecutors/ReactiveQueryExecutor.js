@@ -47,6 +47,7 @@ const createInitialQuery = (reactiveNode, source) => {
 }
 
 const createPatch = (reactiveNode, source, patch = []) => {
+  const previousValue = reactiveNode.value
   const value = ReactiveNode.getNextValueOrUnchanged(reactiveNode, source)
 
   const { removedNodes } = reactiveNode
@@ -71,7 +72,10 @@ const createPatch = (reactiveNode, source, patch = []) => {
     return patch
   }
 
-  // console.log('patch', reactiveNode.patchPath, 'previous', previousValue, 'next', value)
+  // console.log(
+  //   'patch', reactiveNode.patchPath, '\nprevious', previousValue,
+  //   '\nnext', value,
+  // )
   if (value === ReactiveNode.UNCHANGED) {
     return patch
   }
@@ -131,8 +135,10 @@ const ReactiveQueryExecutor = ({
       const patch = []
       createPatch(reactiveTree.queryRoot, { query: data }, patch)
       reactiveTree.sourceRootConfig.nodes.forEach((rootNode) => {
+        // console.log('root', rootNode.patchPath)
         createPatch(rootNode, rootNode.sourceValue, patch)
       })
+      // console.log('PATCH', patch)
       return patch
     },
     recordPatch: async () => {

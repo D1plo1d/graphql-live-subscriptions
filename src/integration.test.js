@@ -105,11 +105,13 @@ describe('GraphQLLiveData Integration', () => {
       subscription,
       eventEmitter,
       state,
+      setState,
     } = await createTestSubscription({})
     let nextState = state
     // inital query
     await subscription.next()
     // null change should not create a response
+    setState(nextState)
     eventEmitter.emit('update', { nextState })
 
     // first patch
@@ -118,6 +120,7 @@ describe('GraphQLLiveData Integration', () => {
         numberOfDogs: 0,
         numberOfCats: 200,
       })
+    setState(nextState)
     eventEmitter.emit('update', { nextState })
     await expectSubscriptionResponse(subscription)
 
@@ -125,6 +128,7 @@ describe('GraphQLLiveData Integration', () => {
     nextState = nextState
       .updateIn(['houses', 0, 'address'], address => `${address} apt. 1`)
       .updateIn(['houses', 1, 'address'], address => `${address} apt. 2`)
+    setState(nextState)
     eventEmitter.emit('update', { nextState })
     await expectSubscriptionResponse(subscription)
   })
@@ -134,6 +138,7 @@ describe('GraphQLLiveData Integration', () => {
       subscription,
       eventEmitter,
       state,
+      setState,
     } = await createTestSubscription({})
     let nextState = state
     // inital query
@@ -149,6 +154,7 @@ describe('GraphQLLiveData Integration', () => {
     })
     nextState = nextState
       .updateIn(['houses'], houses => houses.push(addedHouse))
+    setState(nextState)
     eventEmitter.emit('update', { nextState })
     await expectSubscriptionResponse(subscription)
   })
@@ -158,6 +164,7 @@ describe('GraphQLLiveData Integration', () => {
       subscription,
       eventEmitter,
       state,
+      setState,
     } = await createTestSubscription({})
     let nextState = state
     // inital query
@@ -166,6 +173,7 @@ describe('GraphQLLiveData Integration', () => {
     // first patch
     nextState = nextState
       .updateIn(['jedis'], jedis => jedis.slice(0, -1))
+    setState(nextState)
     eventEmitter.emit('update', { nextState })
     await expectSubscriptionResponse(subscription)
   })

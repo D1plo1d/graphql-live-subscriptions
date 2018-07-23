@@ -63,12 +63,15 @@ export const initialState = State({
   ],
 })
 
-const store = () => ({
-  state: initialState,
-  eventEmitter: new EventEmitter(),
-  setState: (nextState) => {
-    store.state = nextState
-  },
-})
+const store = () => {
+  const storeInstance = {
+    state: initialState,
+    eventEmitter: new EventEmitter(),
+    setState: (nextState) => {
+      storeInstance.state = nextState
+    },
+  }
+  return storeInstance
+}
 
 export default store

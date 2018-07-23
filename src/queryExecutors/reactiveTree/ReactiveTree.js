@@ -70,8 +70,10 @@ const ReactiveTree = ({
     // {typeName}.{fieldName}
     whitelist: {},
   }
-  Object.entries(sourceRoots).forEach(([typeName, fieldName]) => {
-    sourceRootConfig.whitelist[`${typeName}.${fieldName}`] = true
+  Object.entries(sourceRoots).forEach(([typeName, fieldNames]) => {
+    fieldNames.forEach((fieldName) => {
+      sourceRootConfig.whitelist[`${typeName}.${fieldName}`] = true
+    })
   })
 
   const queryRoot = createReactiveTreeInner({
