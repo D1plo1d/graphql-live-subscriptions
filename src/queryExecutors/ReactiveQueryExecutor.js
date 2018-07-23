@@ -130,9 +130,14 @@ const ReactiveQueryExecutor = ({
     ),
     // TODO: create patches for all source roots once source roots are
     // implemented
-    createPatch: async data => (
-      createPatch(reactiveTree.queryRoot, { query: data })
-    ),
+    createPatch: async (data) => {
+      const patch = []
+      createPatch(reactiveTree.queryRoot, { query: data }, patch)
+      reactiveTree.sourceRootConfig.nodes.forEach((rootNode) => {
+        createPatch(rootNode, rootNode.sourceValue, patch)
+      })
+      return patch
+    },
     recordPatch: async () => {
       const message = (
         'recordPatch is not yet implemented for ReactiveQueryExecutor'

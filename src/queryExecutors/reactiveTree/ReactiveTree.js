@@ -61,10 +61,17 @@ const ReactiveTree = ({
   graphqlPath = addPath(undefined, subscriptionName)
   graphqlPath = addPath(graphqlPath, 'query')
 
-  const sourceRootConfig = {}
+  const sourceRootConfig = {
+    // all ReactiveNodes that are source roots in the current query in the order
+    // that they are initially resolved which is the same order they will
+    // be have patches resolved.
+    nodes: [],
+    // whitelist of fields that are to be added as source roots in the form
+    // {typeName}.{fieldName}
+    whitelist: {},
+  }
   Object.entries(sourceRoots).forEach(([typeName, fieldName]) => {
-    sourceRootConfig[typeName] = sourceRootConfig[typeName] || {}
-    sourceRootConfig[typeName][fieldName] = {}
+    sourceRootConfig.whitelist[`${typeName}.${fieldName}`] = true
   })
 
   const queryRoot = createReactiveTreeInner({
@@ -77,7 +84,10 @@ const ReactiveTree = ({
     sourceRootConfig,
   })
 
-  return { queryRoot }
+  return {
+    queryRoot,
+    sourceRootConfig,
+  }
 }
 
 export default ReactiveTree

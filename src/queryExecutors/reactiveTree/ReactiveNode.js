@@ -24,10 +24,9 @@ export const createNode = ({
   sourceRootConfig,
 }) => {
   const name = fieldNodes[0].name.value
-  const parentRoots = sourceRootConfig[parentType.name]
 
   const isSourceRoot = (
-    parentType.name && name && parentRoots && parentRoots[name]
+    sourceRootConfig.whitelist[`${parentType.name}.${name}`] || false
   )
 
   const reactiveNode = {
@@ -40,18 +39,20 @@ export const createNode = ({
     // eg. if path is ['live', 'query', 'foo'] then patchPath is '/foo'
     patchPath: `/${responsePathAsArray(graphqlPath).slice(2).join('/')}`,
     children: [],
+    sourceValue: undefined,
     value: undefined,
     exeContext,
     parentType,
     type: isNonNullType(type) ? type.ofType : type,
     fieldNodes,
     sourceRootConfig,
+    sourceRootNodeIndex: sourceRootConfig.nodes.length,
     isSourceRoot,
     graphqlPath,
   }
 
   if (isSourceRoot) {
-    parentRoots[name][reactiveNode.patchPath] = reactiveNode
+    sourceRootConfig.nodes.push(reactiveNode)
   }
 
   return reactiveNode
@@ -110,6 +111,8 @@ export const setInitialValue = (reactiveNode, source) => {
   // eslint-disable-next-line no-param-reassign
   reactiveNode.initializedValue = true
   // eslint-disable-next-line no-param-reassign
+  reactiveNode.sourceValue = source
+  // eslint-disable-next-line no-param-reassign
   reactiveNode.value = resolveField(reactiveNode, source)
 
   updateChildNodes(reactiveNode)
@@ -125,6 +128,8 @@ export const getNextValueOrUnchanged = (reactiveNode, source) => {
 
   if (nextValue === previousValue) return UNCHANGED
 
+  // eslint-disable-next-line no-param-reassign
+  reactiveNode.sourceValue = source
   // eslint-disable-next-line no-param-reassign
   reactiveNode.value = nextValue
 
