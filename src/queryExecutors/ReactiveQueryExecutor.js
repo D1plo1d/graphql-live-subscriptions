@@ -47,10 +47,6 @@ const createInitialQuery = (reactiveNode, source) => {
 }
 
 const createPatch = (reactiveNode, source, patch = []) => {
-  // console.log('PATCH')
-  // console.log(reactiveNode)
-  const previousValue = reactiveNode.value
-
   const value = ReactiveNode.getNextValueOrUnchanged(reactiveNode, source)
 
   const { removedNodes } = reactiveNode
@@ -62,6 +58,7 @@ const createPatch = (reactiveNode, source, patch = []) => {
       })
     })
 
+    // eslint-disable-next-line no-param-reassign
     reactiveNode.removedNodes = []
   }
 

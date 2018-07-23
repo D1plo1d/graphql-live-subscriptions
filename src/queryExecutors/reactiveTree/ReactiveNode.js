@@ -103,7 +103,8 @@ const resolveField = (reactiveNode, source) => {
     info,
   )
 
-  // console.log('after', fieldNodes[0].name.value, reactiveNode.patchPath, fieldDef.type, source, result)
+  // console.log('after', fieldNodes[0].name.value, reactiveNode.patchPath,
+  // fieldDef.type, source, result)
   return result
 }
 
