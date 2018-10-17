@@ -11,99 +11,75 @@ Pull requests are very welcome.
 ### Installation
 `npm install graphql-live-subscriptions`
 
-### API
-
-#### GraphQLLiveData({ name, type })
-
-returns a `GraphQLDataType` with:
-* a `query` field - immediately responds with the initial results to the live subscription like a `query` operation would.
-* a `patch` field - RFC6902 patch sets sent to the client to update the initial `query` data.
-
-#### subscribeToLiveData({ getSubscriptionProvider, getSource, type })
-
-arguments:
-* `fieldName` MUST be the same name as this field
-* `type` MUST be the same type passed to `GraphQLLiveData`
-* `initialState` MUST be a function that returns the latest value to be passed to the query resolver.
-* `eventEmitter` MUST be a function that returns either an EventEmitter or a Promise. Events:
-  * `emit('update', { nextState })` - graphql-live-subscriptions will generate a patch for us by comparing the next state to the previous state and send it to the subscriber.
-  * `emit('patch', { patch })` - graphql-live-subscriptions will send the patch provided to the subscriber.
-
-returns an AsyncIterator that implements the sending of query's and patches.
-
-TODO: find a place for this comment
-/*
- * 'update' and 'patch' events cause a patch to be sent to the GraphQL client.
- *
- * For most usecases 'update' events should be sufficient.
- *
- * From the client's perspective the two events are indistinguishable.
- *
- * 'update' events are generally easier to create however 'patch' events may
- * be more performant in some situations.
- *
- * ## update events
- *
- * Example Usage: `eventEmitter.emit('update')`
- *
- * compares the previous result of the GraphQL Live Query to the current
- * result and generates a patch based on the diff.
- *
- * ## patch events
- *
- * Example Useage: `eventEmitter.emit('patch', rfc6902Patch)`
- *
- * Passes through an array of RFC6902 ops to the GraphQL client.
- */
-
-
-### Useage
+### Example
 
 ```js
 import {
-  GraphQLLiveData,
+  liveSubscriptionTypeDef,
   subscribeToLiveData,
 } from 'graphql-live-subscriptions'
 
-const JediLiveDataGraphQLType = () => {
-  return GraphQLLiveData({
-    name: 'JediLiveData',
-    type: JediGraphQLType,
-  })
+const schemaString = `
+  type Subscription
+
+  type Query {
+    jedis: [Jedi!]!
+  }
+
+  type House {
+    id: ID!
+    address(includePostalCode: Boolean!): String!
+    numberOfCats: Int!
+    numberOfDogs: Int!
+  }
+
+  type Jedi {
+    id: ID!
+    name: String!
+    houses: [House!]!
+  }
+`
+const resolvers = {
+  /* graphql-live-subscriptions requires a JSON Scalar resolver */
+  JSON: GraphQLJSON,
+
+  Subscription: {
+    live: {
+      resolve: source => source,
+      subscribe: subscribeToLiveData({
+        initialState: (source, args, context) => context.store.state,
+        eventEmitter: (source, args, context) => context.store.eventEmitter,
+        sourceRoots: {
+          Jedi: ['houses'],
+        },
+      }),
+    },
+  },
+  House: {
+    address: (house, args) => {
+      if (args.includePostalCode) {
+        return `${house.address} ${house.postalCode}`
+      }
+      return house.address
+    },
+  },
+  Jedi: {
+    houses: (jedi, args, context) => {
+      const { state } = context.store
+
+      return jedi.houseIDs.map(id => (
+        state.houses.find(house => house.id === id)
+      ))
+    },
+  },
 }
 
-const schema = new GraphQLSchema({
-  query: MyQueryGraphQLType,
-
-  subscription: new GraphQLObjectType({
-    name: 'SubscriptionRoot',
-
-    fields: () => ({
-      jedis: {
-        type: JediLiveDataGraphQLType(),
-
-        /*
-         * DO NOT omit this line. The subscription will not work without a
-         * resolve function even though it is only an identity function.
-         */
-        resolve: source => source
-
-        subscribe: subscribeToLiveData({
-          fieldName: 'jedis',
-          type: JediLiveDataGraphQLType(),
-          initialState: (source, args, context, resolveInfo) => {
-            return store.getJedis()
-          },
-          eventEmitter: (source, args, context, resolveInfo) => {
-            const emitter = new EventEmitter()
-            store.subscribe(() => {
-              emitter.emit('update', store.getJedis())
-            })
-          },
-        }),
-      },
-    }),
-  }),
+const schema = makeExecutableSchema({
+  typeDefs: [
+    schemaString,
+    liveSubscriptionTypeDef(),
+  ],
+  resolvers,
 })
 ```
 
@@ -111,95 +87,49 @@ const schema = new GraphQLSchema({
 
 ```graphql
 subscription {
-  jedis {
+  live {
     query {
-      id
-      firstName
-      lastName
+      jedis {
+        firstName
+        lastName
+
+        houses {
+          address
+        }
+      }
     }
     patch { op, path, from, value }
   }
 }
 ```
 
-## Choosing a QueryExecutor
 
-Two QueryExecutors are provided with graphql-live-subscriptions.
+### API
 
-### FullQueryExecutor
+#### liveSubscriptionTypeDef({ type, queryType, subscriptionName })
 
-**Pros**
+typedefs for the live subscription.
 
-* Compatible with all GraphQL Schemas
-* Simple to use
+arguments:
+* `type = 'LiveSubscription'` - the type of the subscription
+* `queryType = 'Query'` - the name of the query root that the live subscription will wrap
+* `subscriptionName = 'live'` - the name of the live subscription
 
-**Cons**
+For use with programmatically constructed types. Returns a `GraphQLDataType` with:
+* a `query` field - immediately responds with the initial results to the live subscription like a `query` operation would.
+* a `patch` field - RFC6902 patch sets sent to the client to update the initial `query` data.
 
-* Slower then ReactiveQueryExecutor
+#### subscribeToLiveData({ initialState, eventEmitter, sourceRoots })
 
-The FullQueryExecutor re-executes the entire query on every `update` and diffs
-the results to generate patches.
+arguments:
+* `initialState` **function(source, args, context)** returns the latest value to be passed to the query resolver.
+* `eventEmitter` **function(source, args, context)** returns either an EventEmitter or a Promise. Events:
+  * `emit('update', { nextState })` - graphql-live-subscriptions will generate a patch for us by comparing the next state to the previous state and send it to the subscriber.
+  * `emit('patch', { patch })` - graphql-live-subscriptions will send the patch provided directly to the subscriber.
+* `sourceRoots` **Object {[typeName: string]: [fieldName: string]}** - a map of all fields which are not entirely based on their parent's source's state. By default the diffing algorithm only checks for changes to a field if it's parent's source has changed. If it is possible for a field to change it's value or the value of a field nested inside it without the source value changing then it needs to be listed here otherwise it will not generate patches when it changes.
 
-FullQueryExecutor is slower then the ReactiveQueryExecutor but since it uses
-graphql's `execute` function internally it should be compatible with all
-schemas.
+returns an AsyncIterator that implements the sending of query's and patches.
 
-### ReactiveQueryExecutor
+### License
 
-**Pros**
-
-* Faster then the FullQueryExecutor
-
-**Cons**
-
-* Unstable - uses internal GraphQL JS APIs that may break between GraphQL JS releases.
-* Cannot handle Errors (*yet* If you can fix this a Pull Requests would be very
-  welcome)
-* Not compatible with resolve functions that return a Promise (*yet* If you can fix this a Pull Requests would be very
-  welcome)
-* Requires Source Root configuration for some schemas (see below)
-
-The ReactiveQueryExecutor uses tree diffing on the results of your
-GraphQL resolvers to generate patches. The tree diffing algorithim optimizes the
-ReactiveQueryExecutor by not executing comparisions on branches of the query
-tree where the result of a parent field's resolve function hasn't changed.
-
-ReactiveQueryExecutor is similar to React Pure Components in that it checks for
-a change in the data and if there is none then it does not diff any of the child
-fields by default.
-
-#### Source Roots
-
-Each Source Root is a root node for the tree diffing algorithm. By default the
-query field resolver is used as a Source Root so any changes to it's value or
-values in objects nested under it will create patches.
-
-The value of Source Roots comes when you have a scenario where a parent's
-field's resolve value does not include it's child field's resolve values.
-
-**Example**
-
-For example if the query field contains field `a` and field `a` contains field
-`b` of type `B` so we subscribe to:
-
-```graphql
-subscribe {
-  liveData {
-    query {
-      a: b
-    }
-  }
-}
-```
-
-Let's consider what happens when `b`'s value changes.
-
-This would work with the default Source Root if our query resolver
-returns an immutableJS object `Map({a: Map({b: 'B_VALUE' }) })` because any
-change to `b` will result in a new top level immutable Map.
-
-However if our query resolver returns an immutableJS object Map
-`Map({a: 'A_VALUE'})` and then `b`'s resolver returns `Map{b: 'B_VALUE'}` then
-the default Source Roots will not detect changes to `b` because the object
-returned by the query field has not changed. In this scenario we would need to
-use `ReactiveQueryExecutor({ sourceRoots: ['B'] })` to receive patches for `b`.
+graphql-live-subscriptions is [MIT-licensed](https://github.com/graphql/graphql-js/blob/master/LICENSE).
