@@ -39,7 +39,7 @@ const updateListChildNodes = (reactiveNode) => {
    * Add or remove nodes and source roots if the entries in the list have moved
    */
   // eslint-disable-next-line no-param-reassign
-  reactiveNode.movePatches = moves.forEach((move) => {
+  reactiveNode.moves = moves.map((move) => {
     switch (move.type) {
       case ADD: {
         const childNode = createNode({

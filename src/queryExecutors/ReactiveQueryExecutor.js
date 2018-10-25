@@ -30,6 +30,8 @@ const createInitialQuery = (reactiveNode, source) => {
       json.push(childJSON)
       index += 1
     }
+    // eslint-disable-next-line no-param-reassign
+    reactiveNode.moves = []
     return json
   }
 
@@ -50,7 +52,7 @@ const createPatch = (reactiveNode, source, patch = []) => {
   // const previousValue = reactiveNode.value
   const value = ReactiveNode.getNextValueOrUnchanged(reactiveNode, source)
 
-  console.log(reactiveNode.moves)
+  // console.log(reactiveNode.moves)
   reactiveNode.moves.forEach(({ op, childNode, childSource }) => {
     switch (op) {
       case 'add': {
