@@ -11,7 +11,7 @@
     "src/"
   ],
   "scripts": {
-    "clean": "rm -rf build && mkdir build",
+    "clean": "rm -rf dist && mkdir dist",
     "build": "yarn run clean && babel -d ./dist ./src -s",
     "prepublishOnly": "npm run build",
     "test": "jest",
@@ -34,7 +34,8 @@
   },
   "dependencies": {
     "fast-json-patch": "^2.0.6",
-    "fast-memoize": "^2.3.2"
+    "fast-memoize": "^2.3.2",
+    "list-diff2": "^0.1.4"
   },
   "peerDependencies": {
     "graphql": "^0.13.2",
@@ -43,12 +44,12 @@
     "typiql": "^0.3.0"
   },
   "devDependencies": {
-    "babel-core": "7.0.0-bridge.0",
-    "babel-jest": "^22.4.3",
     "@babel/cli": "^7.0.0-beta.43",
     "@babel/core": "7.0.0-beta.43",
     "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.43",
     "@babel/preset-env": "^7.0.0-beta.43",
+    "babel-core": "7.0.0-bridge.0",
+    "babel-jest": "^22.4.3",
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.11.0",

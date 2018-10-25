@@ -8,6 +8,8 @@ import schema from './example'
 import createStore, { House, initialState } from './example/store'
 import integrationTestQuery from './integrationTestQuery'
 
+jest.setTimeout(300)
+
 // const externallyGeneratedPatch = [
 //   {
 //     op: 'replace',

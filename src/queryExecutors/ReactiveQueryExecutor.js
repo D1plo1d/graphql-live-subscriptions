@@ -47,21 +47,35 @@ const createInitialQuery = (reactiveNode, source) => {
 }
 
 const createPatch = (reactiveNode, source, patch = []) => {
-  const previousValue = reactiveNode.value
+  // const previousValue = reactiveNode.value
   const value = ReactiveNode.getNextValueOrUnchanged(reactiveNode, source)
 
-  const { removedNodes } = reactiveNode
-  if (removedNodes.length > 0) {
-    removedNodes.forEach((removedNode) => {
-      patch.push({
-        op: 'remove',
-        path: removedNode.patchPath,
-      })
-    })
+  console.log(reactiveNode.moves)
+  reactiveNode.moves.forEach(({ op, childNode, childSource }) => {
+    switch (op) {
+      case 'add': {
+        patch.push({
+          op,
+          path: childNode.patchPath,
+          value: createInitialQuery(childNode, childSource),
+        })
+        break
+      }
+      case 'remove': {
+        patch.push({
+          op,
+          path: childNode.patchPath,
+        })
+        break
+      }
+      default: {
+        throw new Error(`invalid op: ${op}`)
+      }
+    }
+  })
 
-    // eslint-disable-next-line no-param-reassign
-    reactiveNode.removedNodes = []
-  }
+  // eslint-disable-next-line no-param-reassign
+  if (reactiveNode.moves.length > 0) reactiveNode.moves = []
 
   if (!reactiveNode.initializedValue) {
     patch.push({

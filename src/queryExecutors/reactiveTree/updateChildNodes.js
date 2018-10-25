@@ -3,7 +3,7 @@ import {
   isObjectType,
   // isAbstractType,
   isListType,
-  isNonNullType,
+  // isNonNullType,
 } from 'graphql'
 import {
   getFieldDef,
@@ -13,9 +13,7 @@ import {
 import collectSubFields from '../util/collectSubFields'
 
 import { createNode } from './ReactiveNode'
-import removeAllSourceRoots from './removeAllSourceRoots'
-import iterableValue from './iterableValue'
-import iterableLength from '../util/iterableLength'
+import updateListChildNodes from './updateListChildNodes'
 
 
 const updateChildNodes = (reactiveNode) => {
@@ -24,8 +22,10 @@ const updateChildNodes = (reactiveNode) => {
     type,
     fieldNodes,
     children,
+    patchPath,
     graphqlPath,
     sourceRootConfig,
+    parentType,
   } = reactiveNode
 
   const { schema } = exeContext
@@ -36,6 +36,13 @@ const updateChildNodes = (reactiveNode) => {
       returnType: type,
       fieldNodes,
     })
+
+    if (isListType(parentType) && fields.id == null) {
+      const err = (
+        `the ID must be queried for each object in an array in a live subscription (at ${patchPath})`
+      )
+      throw new Error(err)
+    }
 
     if (Object.keys(fields).length === children.length) return
 
@@ -68,57 +75,11 @@ const updateChildNodes = (reactiveNode) => {
       reactiveNode.children.push(childReactiveNode)
     })
   } else if (isListType(type)) {
-    /*
-     * Add or remove nodes and source roots if the list has changed length
-     */
-    const value = iterableValue(reactiveNode)
-
-    const previousLength = children.length
-    const nextLength = iterableLength(value)
-
-    // console.log('NEW CHILDREN', previousLength, nextLength)
-    // console.log(reactiveNode)
-    // console.log(reactiveNode.children)
-    // console.log('-----')
-
-    const listHasGrown = nextLength > previousLength
-    const listHasShrunk = nextLength < previousLength
-
-    if (listHasGrown) {
-      let index = 0
-      // eslint-disable-next-line no-restricted-syntax
-      for (const entry of value) {
-        if (index >= previousLength) {
-          const childNode = createNode({
-            exeContext,
-            parentType: reactiveNode.type,
-            type: reactiveNode.type.ofType,
-            fieldNodes,
-            graphqlPath: addPath(graphqlPath, index),
-            source: entry, // TODO: create a new node without setting it's source
-            sourceRootConfig,
-          })
-          reactiveNode.children.push(childNode)
-        }
-        index += 1
-      }
-    } else if (listHasShrunk) {
-      const removedNodes = reactiveNode.children.splice(nextLength)
-      // console.log('SHRUNK', reactiveNode.patchPath, removedNodes)
-
-      removedNodes.forEach((node) => {
-        removeAllSourceRoots(node, sourceRootConfig)
-      })
-
-      // eslint-disable-next-line no-param-reassign
-      reactiveNode.children = reactiveNode.children.splice(0, nextLength)
-      // eslint-disable-next-line no-param-reassign
-      reactiveNode.removedNodes = removedNodes
-    }
+    updateListChildNodes(reactiveNode)
   } else if (
     !isLeafType(type)
   ) {
-    throw new Error(`unsupported GraphQL type: ${type}`)
+    throw new Error(`Unsupported GraphQL type: ${type}`)
   }
 }
 

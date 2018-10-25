@@ -31,7 +31,7 @@ export const createNode = ({
 
   const reactiveNode = {
     initializedValue: false,
-    removedNodes: [],
+    moves: [],
     isLeaf: isLeafType(type),
     isList: isListType(type),
     isListEntry: isListType(parentType),

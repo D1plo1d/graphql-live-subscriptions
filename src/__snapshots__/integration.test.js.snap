@@ -114,6 +114,7 @@ Object {
           "houses": Array [
             Object {
               "address": "200 legit rd 90211",
+              "id": "legit_road",
             },
           ],
           "id": "jedi_1",
@@ -128,9 +129,11 @@ Object {
           "houses": Array [
             Object {
               "address": "200 legit rd 90211",
+              "id": "legit_road",
             },
             Object {
               "address": "123 real st 90210",
+              "id": "real_street",
             },
           ],
           "id": "jedi_3",

@@ -16,6 +16,7 @@ const integrationTestQuery = `
           id
           name
           houses {
+            id
             address(includePostalCode: true)
           }
         }
