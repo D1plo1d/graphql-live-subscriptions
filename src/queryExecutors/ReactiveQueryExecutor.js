@@ -30,8 +30,6 @@ const createInitialQuery = (reactiveNode, source) => {
       json.push(childJSON)
       index += 1
     }
-    // eslint-disable-next-line no-param-reassign
-    reactiveNode.moves = []
     return json
   }
 

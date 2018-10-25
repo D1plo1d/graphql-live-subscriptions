@@ -117,6 +117,8 @@ export const setInitialValue = (reactiveNode, source) => {
   reactiveNode.value = resolveField(reactiveNode, source)
 
   updateChildNodes(reactiveNode)
+  // eslint-disable-next-line no-param-reassign
+  reactiveNode.moves = []
 
   return reactiveNode.value
 }

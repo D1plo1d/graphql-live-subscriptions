@@ -174,7 +174,7 @@ describe('GraphQLLiveData Integration', () => {
 
     // first patch
     nextState = nextState
-      .updateIn(['jedis'], jedis => jedis.slice(0, -1))
+      .updateIn(['jedis'], jedis => jedis.slice(1))
     setState(nextState)
     eventEmitter.emit('update', { nextState })
     await expectSubscriptionResponse(subscription)

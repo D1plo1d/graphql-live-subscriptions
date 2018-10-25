@@ -83,7 +83,7 @@ Object {
       Object {
         "from": null,
         "op": "remove",
-        "path": "/jedis/2",
+        "path": "/jedis/0",
         "value": null,
       },
     ],
@@ -151,9 +151,19 @@ Object {
     "patch": Array [
       Object {
         "from": null,
-        "op": "replace",
-        "path": "/jedis/0/id",
-        "value": "a_different_id",
+        "op": "remove",
+        "path": "/jedis/0",
+        "value": null,
+      },
+      Object {
+        "from": null,
+        "op": "add",
+        "path": "/jedis/0",
+        "value": Object {
+          "houses": Array [],
+          "id": "a_different_id",
+          "name": "Luke Skywalker",
+        },
       },
     ],
     "query": null,
@@ -195,9 +205,19 @@ Object {
     "patch": Array [
       Object {
         "from": null,
-        "op": "replace",
-        "path": "/jedis/0/id",
-        "value": "a_different_id",
+        "op": "remove",
+        "path": "/jedis/0",
+        "value": null,
+      },
+      Object {
+        "from": null,
+        "op": "add",
+        "path": "/jedis/0",
+        "value": Object {
+          "houses": Array [],
+          "id": "a_different_id",
+          "name": "Luke Skywalker",
+        },
       },
     ],
     "query": null,

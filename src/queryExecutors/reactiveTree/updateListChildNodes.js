@@ -9,6 +9,10 @@ import iterableValue from './iterableValue'
 export const REMOVE = 0
 export const ADD = 1
 
+const concreteType = type => (
+  type.ofType ? concreteType(type.ofType) : type
+)
+
 /*
  * for lists of Objects: use the ID of the child nodes to sort/filter them into
  * moved/removed/added subsets.
@@ -24,7 +28,7 @@ const updateListChildNodes = (reactiveNode) => {
     sourceRootConfig,
   } = reactiveNode
 
-  const isArrayOfObjects = isObjectType(reactiveNode.type.ofType)
+  const isArrayOfObjects = isObjectType(concreteType(reactiveNode.type))
 
   const value = Array.from(iterableValue(reactiveNode))
   const previousValue = children.map(child => child.value)
