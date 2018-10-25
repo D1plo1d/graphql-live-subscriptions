@@ -51,12 +51,18 @@ const createPatch = (reactiveNode, source, patch = []) => {
   const value = ReactiveNode.getNextValueOrUnchanged(reactiveNode, source)
 
   // console.log(reactiveNode.moves)
-  reactiveNode.moves.forEach(({ op, childNode, childSource }) => {
+  reactiveNode.moves.forEach(({
+    op,
+    index,
+    childNode,
+    childSource,
+  }) => {
+    const path = `${reactiveNode.patchPath}/${index}`
     switch (op) {
       case 'add': {
         patch.push({
           op,
-          path: childNode.patchPath,
+          path,
           value: createInitialQuery(childNode, childSource),
         })
         break
@@ -64,7 +70,7 @@ const createPatch = (reactiveNode, source, patch = []) => {
       case 'remove': {
         patch.push({
           op,
-          path: childNode.patchPath,
+          path,
         })
         break
       }

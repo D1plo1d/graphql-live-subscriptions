@@ -35,7 +35,7 @@
   "dependencies": {
     "fast-json-patch": "^2.0.6",
     "fast-memoize": "^2.3.2",
-    "list-diff2": "^0.1.4"
+    "list-diff2": "livoras/list-diff#master"
   },
   "peerDependencies": {
     "graphql": "^0.13.2",

@@ -18,11 +18,9 @@ const subscribeToLiveData = ({
   resolveInfo,
 ) => {
   const onError = (e) => {
+    // eslint-disable-next-line no-console
     console.error(e)
   }
-
-  const connectionPubSub = new PubSub()
-  const asyncIterator = connectionPubSub.asyncIterator(eventName)
 
   // if (type == null) {
   //   throw new Error('subscribeToLiveData \'type\' argument is required')
@@ -45,6 +43,9 @@ const subscribeToLiveData = ({
     throw new Error(msg)
   }
 
+  const connectionPubSub = new PubSub()
+  const asyncIterator = connectionPubSub.asyncIterator(eventName)
+
   let initialState = getInitialState(
     source,
     args,
@@ -56,9 +57,7 @@ const subscribeToLiveData = ({
     initialState = await initialState
   }
   if (initialState == null) {
-    throw new Error(
-      'initialState cannot return null'
-    )
+    throw new Error('initialState cannot return null')
   }
 
   const { initialQuery, createPatch, recordPatch } = (() => {
@@ -123,6 +122,13 @@ const subscribeToLiveData = ({
     /* send the externally generated patch and update the state */
     await recordPatch(patch)
     publishPatch(patch)
+  }
+
+  const originalUnsubscribe = connectionPubSub.unsubscribe.bind(connectionPubSub)
+  connectionPubSub.unsubscribe = (subID) => {
+    originalUnsubscribe(subID)
+    eventEmitter.removeEventListener('update', onUpdate)
+    eventEmitter.removeEventListener('patch', onPatch)
   }
 
   setImmediate(async () => {

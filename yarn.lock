@@ -3359,10 +3359,9 @@ levn@^0.3.0, levn@~0.3.0:
     prelude-ls "~1.1.2"
     type-check "~0.3.2"
 
-list-diff2@^0.1.4:
+list-diff2@livoras/list-diff#master:
   version "0.1.4"
-  resolved "https://registry.yarnpkg.com/list-diff2/-/list-diff2-0.1.4.tgz#8539c05c579b424b1349a34be78508d3920df958"
-  integrity sha1-hTnAXFebQksTSaNL54UI05IN+Vg=
+  resolved "https://codeload.github.com/livoras/list-diff/tar.gz/7a35a1607e9f7baf3ab8c43bb68d424c6c0a7ca8"
 
 load-json-file@^1.0.0:
   version "1.1.0"

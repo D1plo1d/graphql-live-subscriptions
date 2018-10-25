@@ -5,6 +5,7 @@ import listDiff from 'list-diff2'
 import { createNode } from './ReactiveNode'
 import removeAllSourceRoots from './removeAllSourceRoots'
 import iterableValue from './iterableValue'
+import { updatePathKey } from './reactiveNodePaths'
 
 export const REMOVE = 0
 export const ADD = 1
@@ -60,6 +61,7 @@ const updateListChildNodes = (reactiveNode) => {
         // patch generation
         return {
           op: 'add',
+          index: move.index,
           childNode,
           childSource: move.item,
         }
@@ -72,6 +74,7 @@ const updateListChildNodes = (reactiveNode) => {
 
         return {
           op: 'remove',
+          index: move.index,
           childNode,
         }
       }
@@ -80,6 +83,17 @@ const updateListChildNodes = (reactiveNode) => {
       }
     }
   })
+
+  if (moves.length > 0) {
+    // update each child's patch + graphql path as it may have shifted in the
+    // moves
+    reactiveNode.children.forEach((childNode, index) => {
+      updatePathKey({
+        reactiveNode: childNode,
+        key: index,
+      })
+    })
+  }
 }
 
 export default updateListChildNodes

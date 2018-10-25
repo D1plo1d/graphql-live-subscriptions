@@ -2,7 +2,6 @@ import {
   isListType,
   isLeafType,
   isNonNullType,
-  responsePathAsArray,
   defaultFieldResolver,
 } from 'graphql'
 import {
@@ -12,6 +11,7 @@ import {
 } from 'graphql/execution/execute'
 
 import updateChildNodes from './updateChildNodes'
+import { createPatchPath } from './reactiveNodePaths'
 
 export const UNCHANGED = Symbol('UNCHANGED')
 
@@ -37,7 +37,7 @@ export const createNode = ({
     isListEntry: isListType(parentType),
     name,
     // eg. if path is ['live', 'query', 'foo'] then patchPath is '/foo'
-    patchPath: `/${responsePathAsArray(graphqlPath).slice(2).join('/')}`,
+    patchPath: createPatchPath(graphqlPath),
     children: [],
     sourceValue: undefined,
     value: undefined,
