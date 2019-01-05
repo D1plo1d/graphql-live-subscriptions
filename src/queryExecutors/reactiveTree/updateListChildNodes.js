@@ -1,6 +1,6 @@
 import { isObjectType } from 'graphql'
 import { addPath } from 'graphql/execution/execute'
-import listDiff from 'list-diff2'
+import listDiff from '@d1plo1d/list-diff2'
 
 import { createNode } from './ReactiveNode'
 import removeAllSourceRoots from './removeAllSourceRoots'

@@ -591,6 +591,11 @@
     lodash "^4.2.0"
     to-fast-properties "^2.0.0"
 
+"@d1plo1d/list-diff2@^0.1.5-0":
+  version "0.1.5-0"
+  resolved "https://registry.yarnpkg.com/@d1plo1d/list-diff2/-/list-diff2-0.1.5-0.tgz#b0f366d8ed03b3e302682c8d1db2c7533011d1c3"
+  integrity sha512-P6QX+sRI6Y9fwNJHRQfqMuOrIYDBBD7YYJflkJe3KZzzez/s5SL+hMTP3GCZcuP3Ai+pmobtWGJsDwCUVmOVRg==
+
 "@types/node@^9.4.6":
   version "9.6.18"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-9.6.18.tgz#092e13ef64c47e986802c9c45a61c1454813b31d"
@@ -3358,10 +3363,6 @@ levn@^0.3.0, levn@~0.3.0:
   dependencies:
     prelude-ls "~1.1.2"
     type-check "~0.3.2"
-
-list-diff2@livoras/list-diff#master:
-  version "0.1.4"
-  resolved "https://codeload.github.com/livoras/list-diff/tar.gz/7a35a1607e9f7baf3ab8c43bb68d424c6c0a7ca8"
 
 load-json-file@^1.0.0:
   version "1.1.0"
