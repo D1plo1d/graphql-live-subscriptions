@@ -1,6 +1,6 @@
 {
   "name": "graphql-live-subscriptions",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "main": "dist/index.js",
   "module": "./dist/index.js",
   "author": "Rob Gilson",
@@ -39,7 +39,7 @@
   },
   "peerDependencies": {
     "graphql": "^0.13.2",
-    "graphql-subscriptions": "^0.5.8",
+    "graphql-subscriptions": "^0.5.8 || ^1.0.0",
     "graphql-type-json": "^0.2.0",
     "typiql": "^0.3.0"
   },
