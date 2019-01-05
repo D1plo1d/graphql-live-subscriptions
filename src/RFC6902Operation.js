@@ -1,23 +1,24 @@
-import tql from 'typiql'
 import GraphQLJSON from 'graphql-type-json'
 import {
   GraphQLObjectType,
+  GraphQLNonNull,
+  GraphQLString,
 } from 'graphql'
 
 const RFC6902Operation = new GraphQLObjectType({
   name: 'RFC6902Operation',
   fields: () => ({
     op: {
-      type: tql`String!`,
+      type: GraphQLNonNull(GraphQLString),
     },
     path: {
-      type: tql`String!`,
+      type: GraphQLNonNull(GraphQLString),
     },
     from: {
-      type: tql`String`,
+      type: GraphQLString,
     },
     value: {
-      type: tql`${GraphQLJSON}`,
+      type: GraphQLJSON,
     },
   }),
 })

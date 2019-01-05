@@ -1,14 +1,16 @@
 import {
   GraphQLObjectType,
+  GraphQLNonNull,
+  GraphQLList,
+  GraphQLID,
 } from 'graphql'
 import memoize from 'fast-memoize'
-import tql from 'typiql'
 
 import RFC6902Operation from './RFC6902Operation'
 
 const GraphQLLiveData = (options = {}) => {
   const { name, resumption } = options
- 
+
   if (name == null) {
     throw new Error('name cannot be null')
   }
@@ -34,7 +36,7 @@ const GraphQLLiveData = (options = {}) => {
           type: getQueryType(),
         },
         patch: {
-          type: tql`[${RFC6902Operation}!]`,
+          type: new GraphQLList(new GraphQLNonNull(RFC6902Operation)),
         },
       }
 
@@ -42,13 +44,13 @@ const GraphQLLiveData = (options = {}) => {
         return {
           ...fields,
           resumptionCursor: {
-            type: tql`ID!`,
+            type: new GraphQLNonNull(GraphQLID),
           },
         }
       }
 
       return fields
-    }
+    },
   })
 }
 

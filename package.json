@@ -38,10 +38,9 @@
     "list-diff2": "livoras/list-diff#master"
   },
   "peerDependencies": {
-    "graphql": "^0.13.2",
+    "graphql": "^0.13.2 || ^14.0.0",
     "graphql-subscriptions": "^0.5.8 || ^1.0.0",
-    "graphql-type-json": "^0.2.0",
-    "typiql": "^0.3.0"
+    "graphql-type-json": "^0.2.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.0.0-beta.43",
@@ -59,7 +58,6 @@
     "graphql-tools": "^3.0.2",
     "graphql-type-json": "^0.2.0",
     "immutable": "^3.8.2",
-    "jest": "^22.4.3",
-    "typiql": "^0.3.0"
+    "jest": "^22.4.3"
   }
 }
