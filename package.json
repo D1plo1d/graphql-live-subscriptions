@@ -1,6 +1,6 @@
 {
   "name": "graphql-live-subscriptions",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "main": "dist/index.js",
   "module": "./dist/index.js",
   "author": "Rob Gilson",
@@ -33,9 +33,9 @@
     ]
   },
   "dependencies": {
+    "@d1plo1d/list-diff2": "^0.1.5-0",
     "fast-json-patch": "^2.0.6",
-    "fast-memoize": "^2.3.2",
-    "@d1plo1d/list-diff2": "^0.1.5-0"
+    "fast-memoize": "^2.3.2"
   },
   "peerDependencies": {
     "graphql": "^0.13.2 || ^14.0.0",
