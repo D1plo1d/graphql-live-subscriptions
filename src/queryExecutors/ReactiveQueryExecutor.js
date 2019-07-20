@@ -49,6 +49,8 @@ const createInitialQuery = (reactiveNode, source) => {
 const createPatch = (reactiveNode, source, patch = []) => {
   const previousValue = reactiveNode.value
   const value = ReactiveNode.getNextValueOrUnchanged(reactiveNode, source)
+
+  const becameNull = previousValue != null && value == null
   const becameNotNull = previousValue == null && value != null
 
   if (becameNotNull || !reactiveNode.initializedValue) {
@@ -56,6 +58,14 @@ const createPatch = (reactiveNode, source, patch = []) => {
       op: 'add',
       path: reactiveNode.patchPath,
       value: createInitialQuery(reactiveNode, source),
+    })
+    return patch
+  }
+
+  if (becameNull) {
+    patch.push({
+      op: 'remove',
+      path: reactiveNode.patchPath,
     })
     return patch
   }

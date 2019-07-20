@@ -158,6 +158,34 @@ describe('GraphQLLiveData Integration', () => {
     await expectSubscriptionResponse(subscription)
   })
 
+  it('publishes patches on \'update\' with removed child objects', async () => {
+    const {
+      subscription,
+      eventEmitter,
+      state,
+      setState,
+    } = await createTestSubscription({})
+    let nextState = state
+      .updateIn(['jedis'], (jedis) => {
+        // eslint-disable-next-line
+        jedis[0] = jedis[0].set('primaryAddress', state.houses.get(0))
+        return [...jedis]
+      })
+    // inital query
+    await subscription.next()
+
+    // first patch
+    nextState = nextState
+      .updateIn(['jedis'], (jedis) => {
+        // eslint-disable-next-line
+        jedis[0] = jedis[0].set('primaryAddress', null)
+        return [...jedis]
+      })
+    setState(nextState)
+    eventEmitter.emit('update', { nextState })
+    await expectSubscriptionResponse(subscription)
+  })
+
   it('publishes patches on \'update\' with new list entries', async () => {
     const {
       subscription,

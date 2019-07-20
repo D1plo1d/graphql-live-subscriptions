@@ -95,6 +95,22 @@ Object {
 }
 `;
 
+exports[`GraphQLLiveData Integration publishes patches on 'update' with removed child objects 1`] = `
+Object {
+  "live": Object {
+    "patch": Array [
+      Object {
+        "from": null,
+        "op": "remove",
+        "path": "/jedis/0/primaryAddress",
+        "value": null,
+      },
+    ],
+    "query": null,
+  },
+}
+`;
+
 exports[`GraphQLLiveData Integration publishes patches on 'update' with removed list entries 1`] = `
 Object {
   "live": Object {
