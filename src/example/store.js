@@ -22,6 +22,7 @@ export const House = Record({
 export const Jedi = Record({
   id: null,
   name: null,
+  primaryAddress: null,
   houseIDs: List(),
 })
 

@@ -15,6 +15,10 @@ const integrationTestQuery = `
         jedis {
           id
           name
+          primaryAddress {
+            id
+            address(includePostalCode: true)
+          }
           houses {
             id
             address(includePostalCode: true)

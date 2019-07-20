@@ -56,6 +56,25 @@ Object {
 }
 `;
 
+exports[`GraphQLLiveData Integration publishes patches on 'update' with new child objects 1`] = `
+Object {
+  "live": Object {
+    "patch": Array [
+      Object {
+        "from": null,
+        "op": "add",
+        "path": "/jedis/0/primaryAddress",
+        "value": Object {
+          "address": "123 real st 90210",
+          "id": "real_street",
+        },
+      },
+    ],
+    "query": null,
+  },
+}
+`;
+
 exports[`GraphQLLiveData Integration publishes patches on 'update' with new list entries 1`] = `
 Object {
   "live": Object {
@@ -119,11 +138,13 @@ Object {
           ],
           "id": "jedi_1",
           "name": "Luke Skywalker",
+          "primaryAddress": null,
         },
         Object {
           "houses": Array [],
           "id": "jedi_2",
           "name": "Yoda",
+          "primaryAddress": null,
         },
         Object {
           "houses": Array [
@@ -138,6 +159,7 @@ Object {
           ],
           "id": "jedi_3",
           "name": "Mace Windu",
+          "primaryAddress": null,
         },
       ],
     },
@@ -163,6 +185,7 @@ Object {
           "houses": Array [],
           "id": "a_different_id",
           "name": "Luke Skywalker",
+          "primaryAddress": null,
         },
       },
     ],
@@ -182,16 +205,19 @@ Object {
           "houses": Array [],
           "id": "jedi_1",
           "name": "Luke Skywalker",
+          "primaryAddress": null,
         },
         Object {
           "houses": Array [],
           "id": "jedi_2",
           "name": "Yoda",
+          "primaryAddress": null,
         },
         Object {
           "houses": Array [],
           "id": "jedi_3",
           "name": "Mace Windu",
+          "primaryAddress": null,
         },
       ],
     },
@@ -217,6 +243,7 @@ Object {
           "houses": Array [],
           "id": "a_different_id",
           "name": "Luke Skywalker",
+          "primaryAddress": null,
         },
       },
     ],
@@ -236,16 +263,19 @@ Object {
           "houses": Array [],
           "id": "jedi_1",
           "name": "Luke Skywalker",
+          "primaryAddress": null,
         },
         Object {
           "houses": Array [],
           "id": "jedi_2",
           "name": "Yoda",
+          "primaryAddress": null,
         },
         Object {
           "houses": Array [],
           "id": "jedi_3",
           "name": "Mace Windu",
+          "primaryAddress": null,
         },
       ],
     },

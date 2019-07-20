@@ -47,8 +47,18 @@ const createInitialQuery = (reactiveNode, source) => {
 }
 
 const createPatch = (reactiveNode, source, patch = []) => {
-  // const previousValue = reactiveNode.value
+  const previousValue = reactiveNode.value
   const value = ReactiveNode.getNextValueOrUnchanged(reactiveNode, source)
+  const becameNotNull = previousValue == null && value != null
+
+  if (becameNotNull || !reactiveNode.initializedValue) {
+    patch.push({
+      op: 'add',
+      path: reactiveNode.patchPath,
+      value: createInitialQuery(reactiveNode, source),
+    })
+    return patch
+  }
 
   // console.log(reactiveNode.moves)
   reactiveNode.moves.forEach(({
@@ -82,15 +92,6 @@ const createPatch = (reactiveNode, source, patch = []) => {
 
   // eslint-disable-next-line no-param-reassign
   if (reactiveNode.moves.length > 0) reactiveNode.moves = []
-
-  if (!reactiveNode.initializedValue) {
-    patch.push({
-      op: 'add',
-      path: reactiveNode.patchPath,
-      value: createInitialQuery(reactiveNode, source),
-    })
-    return patch
-  }
 
   // console.log(
   //   'patch', reactiveNode.patchPath, '\nprevious', previousValue,

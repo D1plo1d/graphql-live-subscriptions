@@ -28,6 +28,7 @@ const schemaString = `
   type Jedi {
     id: ID!
     name: String!
+    primaryAddress: House
     houses: [House!]!
   }
 `
