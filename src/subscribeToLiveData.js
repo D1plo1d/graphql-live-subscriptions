@@ -82,17 +82,18 @@ const subscribeToLiveData = ({
     }
   }
 
+  /*
+   * initialQuery sets the state of the query executor to diff against
+   * in later events
+   */
+  try {
+    await initialQuery(initialState)
+  } catch (e) {
+    onError(e)
+    throw e
+  }
+
   const publishInitialQuery = async () => {
-    /*
-     * initialQuery sets the state of the query executor to diff against
-     * in later events
-     */
-    try {
-      await initialQuery(initialState)
-    } catch (e) {
-      onError(e)
-      throw e
-    }
     /*
      * the source is used to generate the initial state and to publish a `query`
      * result to the client.
