@@ -51,7 +51,7 @@ const createPatch = (reactiveNode, source, patch = []) => {
   const value = ReactiveNode.getNextValueOrUnchanged(reactiveNode, source)
 
   const becameNull = previousValue != null && value == null
-  const becameNotNull = previousValue == null && value != null
+  const becameNotNull = previousValue == null && value !== ReactiveNode.UNCHANGED
 
   if (becameNotNull || !reactiveNode.initializedValue) {
     patch.push({
