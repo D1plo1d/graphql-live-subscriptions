@@ -128,8 +128,8 @@ const subscribeToLiveData = ({
   const originalUnsubscribe = connectionPubSub.unsubscribe.bind(connectionPubSub)
   connectionPubSub.unsubscribe = (subID) => {
     originalUnsubscribe(subID)
-    eventEmitter.removeEventListener('update', onUpdate)
-    eventEmitter.removeEventListener('patch', onPatch)
+    eventEmitter.removeListener('update', onUpdate)
+    eventEmitter.removeListener('patch', onPatch)
   }
 
   setImmediate(async () => {
