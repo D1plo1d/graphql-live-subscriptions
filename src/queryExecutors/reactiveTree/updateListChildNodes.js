@@ -1,5 +1,5 @@
 import { isObjectType } from 'graphql'
-import { addPath } from 'graphql/execution/execute'
+import { addPath } from 'graphql/jsutils/Path'
 import listDiff from '@d1plo1d/list-diff2'
 
 import { createNode } from './ReactiveNode'

@@ -1,4 +1,4 @@
-import { addPath } from 'graphql/execution/execute'
+import { addPath } from 'graphql/jsutils/Path'
 import collectSubFields from '../util/collectSubFields'
 
 import * as ReactiveNode from './ReactiveNode'

@@ -5,11 +5,8 @@ import {
   isListType,
   // isNonNullType,
 } from 'graphql'
-import {
-  getFieldDef,
-  addPath,
-} from 'graphql/execution/execute'
-
+import { getFieldDef } from 'graphql/execution/execute'
+import { addPath } from 'graphql/jsutils/Path'
 import collectSubFields from '../util/collectSubFields'
 
 import { createNode } from './ReactiveNode'
