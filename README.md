@@ -1,5 +1,7 @@
 ## graphql-live-subscriptions
 
+**Depricated:** Please use https://github.com/n1ru4l/graphql-live-queries instead.
+
 `graphql-live-subscriptions` provides RFC6902-compatible JSON patches over GraphQL. Client-side code can implement live data in a few lines by using any of the available RFC6902 "JSON Patch" libraries listed here: http://jsonpatch.com/
 
 **Why?** Because I wanted to have the benefits of Live Data and it was unclear if the proposed `@live` directive will ever be added to GraphQL.
